@@ -8,6 +8,7 @@ KeyBoardDic = {'w': False, 's': False, 'a': False, 'd': False, 'space': False, '
 difficulty = None
 character = None
 slime = None
+golemsoldier = None
 IsClear = False
 DungeonBK = None
 DungeonBK2 = None
@@ -227,6 +228,24 @@ class Slime:
         pass
 
 
+class GolemSoldier:
+    def __init__(self):
+        self.x = random.randint(200, get_canvas_width() - 200)
+        self.y = random.randint(200, get_canvas_height() - 100)
+        self.animationX = 0
+        self.animationY = 0
+        self.statement = 0
+        self.delay = 0
+        self.i = 0.1
+        self.walk = load_image("monster/GolemSoldier/GolemSoldier_Attack_4.png")
+
+    def draw(self):
+        self.walk.clip_draw(100 * self.animationX, 0, 100, 100, self.x, self.y)
+
+    def update_animation(self):
+        self.animationX = (self.animationX + 1) % 13
+
+
 def check_slime():
     for i in range(SlimeNum):
         slime[i].countexpel()
@@ -286,11 +305,12 @@ def handle_events():
     pass
 
 def enter():
-    global character, slime, DungeonBK, DungeonBK2, DungeonDoor, difficulty, SlimeNum
+    global character, slime, DungeonBK, DungeonBK2, DungeonDoor, difficulty, SlimeNum, golemsoldier
     difficulty = title_state.difficulty
     SlimeNum = difficulty + 1
     character = Character()
     slime = [Slime() for i in range(SlimeNum)]
+    golemsoldier = GolemSoldier()
     DungeonBK = load_image("map/Dungeon_BK.png")
     DungeonBK2 = load_image("map/BKWalls.png")
     DungeonDoor = load_image("map/Door.png")
@@ -305,11 +325,12 @@ def exit():
 
 def update():
     global AnimationClock
-    global character, slime
+    global character, slime, golemsoldier
     if AnimationClock % 20 == 0:
         character.update_animation()
         for i in range(SlimeNum):
             slime[i].update_animation()
+        golemsoldier.update_animation()
 
     character.update_state()
     character.update_character()
@@ -323,6 +344,7 @@ def draw():
     DungeonBK.draw(get_canvas_width() // 2, get_canvas_height() // 2)
     DungeonBK2.draw(get_canvas_width() // 2, get_canvas_height() // 2)
     DungeonDoor.clip_draw(200 * DoorAnimation, 0, 200, 200, get_canvas_width() // 2, get_canvas_height() - 60)
+    golemsoldier.draw()
     character.draw()
     for i in range(SlimeNum):
         slime[i].draw()
