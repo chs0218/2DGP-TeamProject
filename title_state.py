@@ -21,7 +21,7 @@ class Stage:
 name = "TitleState"
 stage = None
 Width, Height = 1276, 720
-
+difficulty = 0
 
 def enter():
     global stage
@@ -30,7 +30,8 @@ def enter():
 
 
 def exit():
-    global stage
+    global stage, difficulty
+    difficulty = stage.num
     del stage
     pass
 
