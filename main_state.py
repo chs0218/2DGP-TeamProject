@@ -9,6 +9,7 @@ difficulty = None
 character = None
 slime = None
 golemsoldier = None
+golemkamikaze = None
 IsClear = False
 DungeonBK = None
 DungeonBK2 = None
@@ -16,6 +17,7 @@ DungeonDoor = None
 DoorAnimation = 0
 AnimationClock = 0
 SlimeNum = 0
+
 
 class Character:
     def __init__(self):
@@ -73,6 +75,9 @@ class Character:
                     KeyBoardDic.update(j=False)
                     self.combo = 0
                 self.animation = (self.animation + 1) % 18
+
+            if self.animation == 3 or self.animation == 7 or self.animation == 12:
+                check_attack()
         elif self.state == 2:
             self.animation = (self.animation + 1) % self.block
         elif 2 < self.state < 6:
@@ -155,24 +160,30 @@ class Slime:
         self.animationX = 0
         self.animationY = 0
         self.statement = 0
+        self.hp = 1
         self.delay = 0
+        self.dead = False
         self.expelCount = False
         self.expelnum = 0
         self.i = 0.2
+        self.die = load_image("monster/slime/slimes_die.png")
         self.walk = load_image("monster/slime/slime_walk.png")
         self.attack = load_image("monster/slime/slime_hit_attack.png")
         self.absorbed = load_image("monster/slime/slimeabsorbed_attack.png")
         self.expel = load_image("monster/slime/slime_expel.png")
 
     def draw(self):
-        if self.statement == 0:
-            self.walk.clip_draw(100 * self.animationX, 0, 100, 100, self.x, self.y)
-        elif self.statement < 4:
-            self.attack.clip_draw(200 * self.animationX, 200 * self.animationY, 200, 200, self.x, self.y)
-        elif self.statement == 4:
-            self.absorbed.clip_draw(100 * self.animationX, 100 * self.animationY, 100, 100, self.x, self.y)
+        if self.dead:
+            self.die.draw(self.x, self.y)
         else:
-            self.expel.clip_draw(200 * self.animationX, 200 * self.animationY, 200, 200, self.x, self.y)
+            if self.statement == 0:
+                self.walk.clip_draw(100 * self.animationX, 0, 100, 100, self.x, self.y)
+            elif self.statement < 4:
+                self.attack.clip_draw(200 * self.animationX, 200 * self.animationY, 200, 200, self.x, self.y)
+            elif self.statement == 4:
+                self.absorbed.clip_draw(100 * self.animationX, 100 * self.animationY, 100, 100, self.x, self.y)
+            elif self.statement == 5:
+                self.expel.clip_draw(200 * self.animationX, 200 * self.animationY, 200, 200, self.x, self.y)
 
     def update_animation(self):
         if self.statement == 0:
@@ -235,16 +246,22 @@ class GolemSoldier:
         self.animationX = 0
         self.animationDir = 0
         self.statement = 0
+        self.hp = 1
+        self.dead = False
         self.delay = 0
         self.i = 0.2
         self.walk = load_image("monster/GolemSoldier/GolemSoldier_Floating.png")
         self.attack = load_image("monster/GolemSoldier/GolemSoldier_Attack.png")
+        self.die = load_image("monster/GolemSoldier/soldier_die.png")
 
     def draw(self):
-        if self.statement == 0:
-            self.walk.clip_draw(200 * self.animationX, 200 * self.animationDir, 200, 200, self.x, self.y)
+        if self.dead:
+            self.die.draw(self.x, self.y)
         else:
-            self.attack.clip_draw(200 * self.animationX, 200 * self.animationDir, 200, 200, self.x, self.y)
+            if self.statement == 0:
+                self.walk.clip_draw(200 * self.animationX, 200 * self.animationDir, 200, 200, self.x, self.y)
+            else:
+                self.attack.clip_draw(200 * self.animationX, 200 * self.animationDir, 200, 200, self.x, self.y)
 
     def update_animation(self):
         if self.statement == 0:
@@ -255,6 +272,7 @@ class GolemSoldier:
                 self.statement = 0
                 self.delay = 20
                 self.animationX = 0
+
     def move(self):
         if self.delay == 0:
             if self.statement == 0:
@@ -300,6 +318,102 @@ class GolemSoldier:
         else:
             self.delay -= 1
 
+
+class Golemkamikaze:
+    def __init__(self):
+        self.x = random.randint(200, get_canvas_width() - 200)
+        self.y = random.randint(200, get_canvas_height() - 100)
+        self.animationX = 0
+        self.animationY = 0
+        self.statement = 0
+        self.bomb = False
+        self.i = 0.2
+
+        self.slept = load_image("monster/golemkamikaze/golemkamikaze_idleslept.png")
+        self.wake = load_image("monster/golemkamikaze/golemkamikaze_wake.png")
+        self.walk = load_image("monster/golemkamikaze/golemkamikaze_walk.png")
+        self.attack = load_image("monster/golemkamikaze/golemkamikaze_attack.png")
+        self.die = load_image("monster/golemkamikaze/kamikaze_die.png")
+
+    def draw(self):
+        if self.bomb:
+            self.die.draw(self.x, self.y)
+        else:
+            if self.statement == 0:
+                self.slept.draw(self.x, self.y)
+            elif self.statement == 1:
+                self.wake.clip_draw(100 * self.animationX, 0, 100, 100, self.x, self.y)
+            elif self.statement == 2:
+                self.walk.clip_draw(100 * self.animationX, 0, 100, 100, self.x, self.y)
+            else:
+                self.attack.clip_draw(300 * self.animationX, 300 * self.animationY, 300, 300, self.x, self.y)
+
+    def update_animation(self):
+        if self.statement == 0:
+            pass
+
+        elif self.statement == 1:
+            self.animationX += 1
+            if self.animationX == 4:
+                self.statement = 2
+                self.animationX = 0
+
+        elif self.statement == 2:
+            self.animationX = (self.animationX + 1) % 4
+
+        else:
+            self.animationX += 1
+            if self.animationX == 10:
+                if self.animationY == 0:
+                    self.animationY += 1
+                else:
+                    self.bomb = True
+                    self.animationX = 0
+                    self.animationY = 0
+                self.animationX = 0
+
+    def move(self):
+        if self.statement == 0:
+            if (self.x - character.x) ** 2 + (self.y - character.y) ** 2 < 6000:
+                self.statement = 1
+
+        elif self.statement == 2:
+            t = self.i / 100
+            self.x = (1 - t) * self.x + t * character.x
+            self.y = (1 - t) * self.y + t * character.y
+
+            if (self.x - character.x) ** 2 + (self.y - character.y) ** 2 < 6000:
+                self.statement = 3
+                self.animationX = 0
+            pass
+        else:
+            pass
+
+
+def check_attack():
+    LeftX = character.x - 50
+    LeftY = character.y - 50
+    RightX = character.x + 50
+    RightY = character.y + 50
+
+    if character.dir == 0:
+        pass
+    elif character.dir == 1:
+        pass
+    elif character.dir == 2:
+        pass
+    else:
+        pass
+
+    for i in range(SlimeNum):
+        if LeftX < slime[i].x < RightX and LeftY < slime[i].y < RightY:
+            slime[i].hp -= 1
+            if slime[i].hp == 0:
+                slime[i].dead = True
+    if LeftX < golemsoldier.x < RightX and LeftY < golemsoldier.y < RightY:
+        golemsoldier.hp -= 1
+        if golemsoldier.hp == 0:
+            golemsoldier.dead = True
 
 def check_slime():
     for i in range(SlimeNum):
@@ -359,13 +473,16 @@ def handle_events():
 
     pass
 
+
 def enter():
     global character, slime, DungeonBK, DungeonBK2, DungeonDoor, difficulty, SlimeNum, golemsoldier
+    global golemkamikaze
     difficulty = title_state.difficulty
-    SlimeNum = difficulty + 1
+    SlimeNum = 10
     character = Character()
     slime = [Slime() for i in range(SlimeNum)]
     golemsoldier = GolemSoldier()
+    golemkamikaze = Golemkamikaze()
     DungeonBK = load_image("map/Dungeon_BK.png")
     DungeonBK2 = load_image("map/BKWalls.png")
     DungeonDoor = load_image("map/Door.png")
@@ -373,25 +490,33 @@ def enter():
 
 
 def exit():
-    global character, DungeonBK, DungeonBK2, DungeonDoor
-    del character, DungeonBK, DungeonBK2, DungeonDoor
+    global character, DungeonBK, DungeonBK2, DungeonDoor, slime, golemsoldier, golemkamikaze
+    del character, DungeonBK, DungeonBK2, DungeonDoor, slime, golemsoldier, golemkamikaze
     pass
 
 
 def update():
     global AnimationClock
-    global character, slime, golemsoldier
+    global character, slime, golemsoldier, golemkamikaze
     if AnimationClock % 20 == 0:
         character.update_animation()
         for i in range(SlimeNum):
-            slime[i].update_animation()
-        golemsoldier.update_animation()
+            if not slime[i].dead:
+                slime[i].update_animation()
+        if not golemsoldier.dead:
+            golemsoldier.update_animation()
+        if not golemkamikaze.bomb:
+            golemkamikaze.update_animation()
 
     character.update_state()
     character.update_character()
     for i in range(SlimeNum):
-        slime[i].move()
-    golemsoldier.move()
+        if not slime[i].dead:
+            slime[i].move()
+    if not golemsoldier.dead:
+        golemsoldier.move()
+    if not golemkamikaze.bomb:
+        golemkamikaze.move()
     AnimationClock = (AnimationClock + 1) % 100
 
 
@@ -400,10 +525,21 @@ def draw():
     DungeonBK.draw(get_canvas_width() // 2, get_canvas_height() // 2)
     DungeonBK2.draw(get_canvas_width() // 2, get_canvas_height() // 2)
     DungeonDoor.clip_draw(200 * DoorAnimation, 0, 200, 200, get_canvas_width() // 2, get_canvas_height() - 60)
+    for i in range(SlimeNum):
+        if slime[i].dead:
+            slime[i].draw()
+    if golemkamikaze.bomb:
+        golemkamikaze.draw()
     golemsoldier.draw()
+    if not golemkamikaze.bomb:
+        golemkamikaze.draw()
+    for i in range(SlimeNum):
+        if not slime[i].expelCount and not slime[i].dead:
+            slime[i].draw()
     character.draw()
     for i in range(SlimeNum):
-        slime[i].draw()
+        if not slime[i].dead and slime[i].expelCount:
+            slime[i].draw()
     update_canvas()
     handle_events()
     pass
