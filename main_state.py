@@ -154,6 +154,12 @@ class Character:
 
 
 class Slime:
+    die = None
+    walk = None
+    attack = None
+    absorbed = None
+    expel = None
+
     def __init__(self):
         self.x = random.randint(200, get_canvas_width() - 200)
         self.y = random.randint(200, get_canvas_height() - 100)
@@ -166,11 +172,12 @@ class Slime:
         self.expelCount = False
         self.expelnum = 0
         self.i = 0.2
-        self.die = load_image("monster/slime/slimes_die.png")
-        self.walk = load_image("monster/slime/slime_walk.png")
-        self.attack = load_image("monster/slime/slime_hit_attack.png")
-        self.absorbed = load_image("monster/slime/slimeabsorbed_attack.png")
-        self.expel = load_image("monster/slime/slime_expel.png")
+        if Slime.die == None:
+            Slime.die = load_image("monster/slime/slimes_die.png")
+            Slime.walk = load_image("monster/slime/slime_walk.png")
+            Slime.attack = load_image("monster/slime/slime_hit_attack.png")
+            Slime.absorbed = load_image("monster/slime/slimeabsorbed_attack.png")
+            Slime.expel = load_image("monster/slime/slime_expel.png")
 
     def draw(self):
         if self.dead:
@@ -240,6 +247,10 @@ class Slime:
 
 
 class GolemSoldier:
+    walk = None
+    attak = None
+    die = None
+
     def __init__(self):
         self.x = random.randint(200, get_canvas_width() - 200)
         self.y = random.randint(200, get_canvas_height() - 100)
@@ -250,9 +261,10 @@ class GolemSoldier:
         self.dead = False
         self.delay = 0
         self.i = 0.2
-        self.walk = load_image("monster/GolemSoldier/GolemSoldier_Floating.png")
-        self.attack = load_image("monster/GolemSoldier/GolemSoldier_Attack.png")
-        self.die = load_image("monster/GolemSoldier/soldier_die.png")
+        if GolemSoldier.die == None:
+            GolemSoldier.walk = load_image("monster/GolemSoldier/GolemSoldier_Floating.png")
+            GolemSoldier.attack = load_image("monster/GolemSoldier/GolemSoldier_Attack.png")
+            GolemSoldier.die = load_image("monster/GolemSoldier/soldier_die.png")
 
     def draw(self):
         if self.dead:
@@ -320,6 +332,12 @@ class GolemSoldier:
 
 
 class Golemkamikaze:
+    slept = None
+    wake = None
+    walk = None
+    attack = None
+    die = None
+
     def __init__(self):
         self.x = random.randint(200, get_canvas_width() - 200)
         self.y = random.randint(200, get_canvas_height() - 100)
@@ -328,12 +346,12 @@ class Golemkamikaze:
         self.statement = 0
         self.bomb = False
         self.i = 0.2
-
-        self.slept = load_image("monster/golemkamikaze/golemkamikaze_idleslept.png")
-        self.wake = load_image("monster/golemkamikaze/golemkamikaze_wake.png")
-        self.walk = load_image("monster/golemkamikaze/golemkamikaze_walk.png")
-        self.attack = load_image("monster/golemkamikaze/golemkamikaze_attack.png")
-        self.die = load_image("monster/golemkamikaze/kamikaze_die.png")
+        if Golemkamikaze.die == None:
+            Golemkamikaze.slept = load_image("monster/golemkamikaze/golemkamikaze_idleslept.png")
+            Golemkamikaze.wake = load_image("monster/golemkamikaze/golemkamikaze_wake.png")
+            Golemkamikaze.walk = load_image("monster/golemkamikaze/golemkamikaze_walk.png")
+            Golemkamikaze.attack = load_image("monster/golemkamikaze/golemkamikaze_attack.png")
+            Golemkamikaze.die = load_image("monster/golemkamikaze/kamikaze_die.png")
 
     def draw(self):
         if self.bomb:
@@ -478,7 +496,7 @@ def enter():
     global character, slime, DungeonBK, DungeonBK2, DungeonDoor, difficulty, SlimeNum, golemsoldier
     global golemkamikaze
     difficulty = title_state.difficulty
-    SlimeNum = 10
+    SlimeNum = 4
     character = Character()
     slime = [Slime() for i in range(SlimeNum)]
     golemsoldier = GolemSoldier()
