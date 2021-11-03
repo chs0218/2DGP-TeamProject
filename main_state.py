@@ -18,6 +18,12 @@ DoorAnimation = 0
 AnimationClock = 0
 SlimeNum = 0
 
+class Dungeon:
+    BK = None
+    BK2 = None
+    Door = None
+    def __init__(self):
+        pass
 
 class Character:
     def __init__(self):
