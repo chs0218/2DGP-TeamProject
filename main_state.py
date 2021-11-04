@@ -23,6 +23,10 @@ class Dungeon:
     BK2 = None
     Door = None
     def __init__(self):
+        if Dungeon.BK == None:
+            Dungeon.BK = load_image("map/Dungeon_BK.png")
+            Dungeon.BK2 = load_image("map/BKWalls.png")
+            Dungeon.Door = load_image("map/Door.png")
         pass
 
 class Character:
@@ -507,9 +511,6 @@ def enter():
     slime = [Slime() for i in range(SlimeNum)]
     golemsoldier = GolemSoldier()
     golemkamikaze = Golemkamikaze()
-    DungeonBK = load_image("map/Dungeon_BK.png")
-    DungeonBK2 = load_image("map/BKWalls.png")
-    DungeonDoor = load_image("map/Door.png")
     pass
 
 
