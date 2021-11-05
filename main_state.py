@@ -11,10 +11,7 @@ slime = None
 golemsoldier = None
 golemkamikaze = None
 IsClear = False
-DungeonBK = None
-DungeonBK2 = None
-DungeonDoor = None
-DoorAnimation = 0
+dungeon = None
 AnimationClock = 0
 SlimeNum = 0
 
@@ -27,7 +24,14 @@ class Dungeon:
             Dungeon.BK = load_image("map/Dungeon_BK.png")
             Dungeon.BK2 = load_image("map/BKWalls.png")
             Dungeon.Door = load_image("map/Door.png")
-        pass
+        self.DoorAnimation = 0
+        self.isClear = False
+
+    def draw(self):
+        Dungeon.BK.draw(get_canvas_width() // 2, get_canvas_height() // 2)
+        Dungeon.BK2.draw(get_canvas_width() // 2, get_canvas_height() // 2)
+        Dungeon.Door.clip_draw(200 * self.DoorAnimation, 0, 200, 200, get_canvas_width() // 2, get_canvas_height() - 60)
+
 
 class Character:
     def __init__(self):
@@ -503,7 +507,7 @@ def handle_events():
 
 
 def enter():
-    global character, slime, DungeonBK, DungeonBK2, DungeonDoor, difficulty, SlimeNum, golemsoldier
+    global character, slime, dungeon, difficulty, SlimeNum, golemsoldier
     global golemkamikaze
     difficulty = title_state.difficulty
     SlimeNum = 4
@@ -511,6 +515,7 @@ def enter():
     slime = [Slime() for i in range(SlimeNum)]
     golemsoldier = GolemSoldier()
     golemkamikaze = Golemkamikaze()
+    dungeon = Dungeon()
     pass
 
 
@@ -547,9 +552,6 @@ def update():
 
 def draw():
     clear_canvas()
-    DungeonBK.draw(get_canvas_width() // 2, get_canvas_height() // 2)
-    DungeonBK2.draw(get_canvas_width() // 2, get_canvas_height() // 2)
-    DungeonDoor.clip_draw(200 * DoorAnimation, 0, 200, 200, get_canvas_width() // 2, get_canvas_height() - 60)
     for i in range(SlimeNum):
         if slime[i].dead:
             slime[i].draw()
