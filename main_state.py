@@ -520,8 +520,8 @@ def enter():
 
 
 def exit():
-    global character, DungeonBK, DungeonBK2, DungeonDoor, slime, golemsoldier, golemkamikaze
-    del character, DungeonBK, DungeonBK2, DungeonDoor, slime, golemsoldier, golemkamikaze
+    global character, dungeon, slime, golemsoldier, golemkamikaze
+    del character, dungeon, slime, golemsoldier, golemkamikaze
     pass
 
 
@@ -552,6 +552,7 @@ def update():
 
 def draw():
     clear_canvas()
+    dungeon.draw()
     for i in range(SlimeNum):
         if slime[i].dead:
             slime[i].draw()
