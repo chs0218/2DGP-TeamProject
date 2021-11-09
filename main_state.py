@@ -2,6 +2,7 @@ from pico2d import *
 import random
 import game_framework
 import title_state
+from Dungeon import dungeon
 
 KeyBoardDic = {'w': False, 's': False, 'a': False, 'd': False, 'space': False, 'j': False, 'k': False}
 
@@ -11,27 +12,9 @@ slime = None
 golemsoldier = None
 golemkamikaze = None
 IsClear = False
-dungeon = None
+dungeons = None
 AnimationClock = 0
 SlimeNum = 0
-
-class Dungeon:
-    BK = None
-    BK2 = None
-    Door = None
-    def __init__(self):
-        if Dungeon.BK == None:
-            Dungeon.BK = load_image("map/Dungeon_BK.png")
-            Dungeon.BK2 = load_image("map/BKWalls.png")
-            Dungeon.Door = load_image("map/Door.png")
-        self.DoorAnimation = 0
-        self.isClear = False
-
-    def draw(self):
-        Dungeon.BK.draw(get_canvas_width() // 2, get_canvas_height() // 2)
-        Dungeon.BK2.draw(get_canvas_width() // 2, get_canvas_height() // 2)
-        Dungeon.Door.clip_draw(200 * self.DoorAnimation, 0, 200, 200, get_canvas_width() // 2, get_canvas_height() - 60)
-
 
 class Character:
     def __init__(self):
@@ -507,7 +490,7 @@ def handle_events():
 
 
 def enter():
-    global character, slime, dungeon, difficulty, SlimeNum, golemsoldier
+    global character, slime, dungeons, difficulty, SlimeNum, golemsoldier
     global golemkamikaze
     difficulty = title_state.difficulty
     SlimeNum = 4
@@ -515,13 +498,13 @@ def enter():
     slime = [Slime() for i in range(SlimeNum)]
     golemsoldier = GolemSoldier()
     golemkamikaze = Golemkamikaze()
-    dungeon = Dungeon()
+    dungeons = dungeon()
     pass
 
 
 def exit():
-    global character, dungeon, slime, golemsoldier, golemkamikaze
-    del character, dungeon, slime, golemsoldier, golemkamikaze
+    global character, dungeons, slime, golemsoldier, golemkamikaze
+    del character, dungeons, slime, golemsoldier, golemkamikaze
     pass
 
 
@@ -552,7 +535,7 @@ def update():
 
 def draw():
     clear_canvas()
-    dungeon.draw()
+    dungeons.draw()
     for i in range(SlimeNum):
         if slime[i].dead:
             slime[i].draw()
