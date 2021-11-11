@@ -2,6 +2,7 @@ from pico2d import *
 import random
 import game_framework
 import title_state
+import Character
 from Dungeon import dungeon
 from Monster import *
 
@@ -16,140 +17,6 @@ IsClear = False
 dungeons = None
 AnimationClock = 0
 SlimeNum = 0
-
-class Character:
-    def __init__(self):
-        self.x = 630
-        self.y = 120
-        self.combo = 0
-        self.state = 8
-        self.block = 1
-        self.Roll = load_image("player/player_roll.png")
-        self.Die = load_image("player/Player_Die.png")
-        self.Idle = load_image("player/player_idle.png")
-        self.Walk = load_image("player/player_walk.png")
-        self.Attack = load_image("player/player_attack.png")
-        self.Shield = load_image("player/player_shield_defense.png")
-        self.ShieldMove = load_image("player/player_shield_walk.png")
-        self.animation = 0
-        self.dir = 0
-
-    def draw(self):
-        if self.state == 0:
-            self.Roll.clip_draw(100 * self.animation, 100 * self.dir, 100, 100, self.x, self.y)
-        elif self.state == 1:
-            if self.dir > 1:
-                self.Attack.clip_draw(400 * self.animation, 400 * self.dir, 400, 400, self.x, self.y - 15)
-            else:
-                self.Attack.clip_draw(400 * self.animation, 400 * self.dir, 400, 400, self.x, self.y)
-        elif self.state == 2:
-            self.Shield.clip_draw(100 * self.animation, 100 * self.dir, 100, 100, self.x, self.y)
-        elif self.state == 3:
-            self.ShieldMove.clip_draw(100 * self.animation, 100 * self.dir, 100, 100, self.x, self.y)
-        elif self.state == 4:
-            self.Walk.clip_draw(100 * self.animation, 100 * self.dir, 100, 100, self.x, self.y)
-        else:
-            self.Idle.clip_draw(100 * self.animation, 100 * self.dir, 100, 100, self.x, self.y)
-
-    def update_animation(self):
-        if self.state == 0:
-            if self.animation == 7:
-                KeyBoardDic.update(space=False)
-            self.animation = (self.animation + 1) % 8
-        elif self.state == 1:
-            if self.combo == 1:
-                if self.animation > 3:
-                    KeyBoardDic.update(j=False)
-                    self.combo = 0
-                self.animation = (self.animation + 1) % 5
-                pass
-            elif self.combo == 2:
-                if self.animation > 7:
-                    KeyBoardDic.update(j=False)
-                    self.combo = 0
-                self.animation = (self.animation + 1) % 9
-            else:
-                if self.animation > 16:
-                    KeyBoardDic.update(j=False)
-                    self.combo = 0
-                self.animation = (self.animation + 1) % 18
-
-            if self.animation == 3 or self.animation == 7 or self.animation == 12:
-                check_attack()
-        elif self.state == 2:
-            self.animation = (self.animation + 1) % self.block
-        elif 2 < self.state < 6:
-            self.animation = (self.animation + 1) % 8
-
-    def update_state(self):
-        if KeyBoardDic['space']:
-            self.state = 0
-        elif KeyBoardDic['j']:
-            self.state = 1
-        elif KeyBoardDic['k']:
-            if KeyBoardDic['w'] or KeyBoardDic['s'] or KeyBoardDic['a'] or KeyBoardDic['d']:
-                self.state = 3
-            else:
-                if self.animation > 5:
-                    self.animation = 0
-                self.state = 2
-        elif KeyBoardDic['w'] or KeyBoardDic['s'] or KeyBoardDic['a'] or KeyBoardDic['d']:
-            self.state = 4
-        else:
-            self.state = 5
-
-        if not self.state == 1:
-            if KeyBoardDic['w']:
-                self.dir = 0
-            elif KeyBoardDic['s']:
-                self.dir = 1
-            elif KeyBoardDic['a']:
-                self.dir = 2
-            elif KeyBoardDic['d']:
-                self.dir = 3
-
-    def update_character(self):
-        if self.state == 0:
-            self.move(1.5)
-        elif self.state == 1:
-            if self.animation == 1:
-                self.move(2)
-            elif self.animation == 6:
-                self.move(2)
-            elif self.animation == 10:
-                self.move(1.5)
-            pass
-        elif self.state == 3:
-            self.move(0.5)
-            pass
-        elif self.state == 4:
-            self.move(1)
-            pass
-        else:
-            pass
-
-    def move(self, i):
-        if self.dir == 0:
-            if self.y < get_canvas_height() - 80:
-                self.y += i
-            else:
-                self.y = get_canvas_height() - 80
-        elif self.dir == 1:
-            if self.y > 120:
-                self.y -= i
-            else:
-                self.y = 120
-        elif self.dir == 2:
-            if self.x > 160:
-                self.x -= i
-            else:
-                self.x = 160
-        elif self.dir == 3:
-            if self.x < get_canvas_width() - 160:
-                self.x += i
-            else:
-                self.x = get_canvas_width() - 160
-
 
 def check_attack():
     LeftX = character.x - 50
@@ -188,49 +55,11 @@ def handle_events():
     for event in events:
         if event.type == SDL_QUIT:
             game_framework.quit()
-        elif event.type == SDL_KEYDOWN:
-            if event.key == SDLK_ESCAPE:
-                game_framework.quit()
-            elif event.key == SDLK_w:
-                check_slime()
-                KeyBoardDic.update(w=True)
-            elif event.key == SDLK_s:
-                check_slime()
-                KeyBoardDic.update(s=True)
-            elif event.key == SDLK_a:
-                check_slime()
-                KeyBoardDic.update(a=True)
-            elif event.key == SDLK_d:
-                check_slime()
-                KeyBoardDic.update(d=True)
-            elif event.key == SDLK_SPACE:
-                check_slime()
-                if not character.state == 0:
-                    character.animation = 0
-                KeyBoardDic.update(space=True)
-                KeyBoardDic.update(j=False)
-                character.combo = 0
-            elif event.key == SDLK_j:
-                if not character.state == 0 and not character.state == 1:
-                    character.animation = 0
-                character.combo += 1
-                KeyBoardDic.update(j=True)
-            elif event.key == SDLK_k:
-                if not character.state == 1:
-                    character.animation = 0
-                KeyBoardDic.update(k=True)
-
-        elif event.type == SDL_KEYUP:
-            if event.key == SDLK_k:
-                KeyBoardDic.update(k=False)
-            elif event.key == SDLK_w:
-                KeyBoardDic.update(w=False)
-            elif event.key == SDLK_s:
-                KeyBoardDic.update(s=False)
-            elif event.key == SDLK_a:
-                KeyBoardDic.update(a=False)
-            elif event.key == SDLK_d:
-                KeyBoardDic.update(d=False)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            game_framework.quit()
+        else:
+            check_slime()
+            character.handle_event(event)
 
     pass
 
@@ -240,7 +69,7 @@ def enter():
     global golemkamikaze
     difficulty = title_state.difficulty
     SlimeNum = 4
-    character = Character()
+    character = Character.Chracter()
     slime = [Slime() for i in range(SlimeNum)]
     golemsoldier = GolemSoldier()
     golemkamikaze = Golemkamikaze()
@@ -257,46 +86,44 @@ def exit():
 def update():
     global AnimationClock
     global character, slime, golemsoldier, golemkamikaze
-    if AnimationClock % 20 == 0:
-        character.update_animation()
-        for i in range(SlimeNum):
-            if not slime[i].dead:
-                slime[i].update_animation()
-        if not golemsoldier.dead:
-            golemsoldier.update_animation()
-        if not golemkamikaze.bomb:
-            golemkamikaze.update_animation()
-
-    character.update_state()
-    character.update_character()
-    for i in range(SlimeNum):
-        if not slime[i].dead:
-            slime[i].move(character)
-    if not golemsoldier.dead:
-        golemsoldier.move(character)
-    if not golemkamikaze.bomb:
-        golemkamikaze.move(character)
-    AnimationClock = (AnimationClock + 1) % 100
+    character.update()
+    # if AnimationClock % 20 == 0:
+    #     for i in range(SlimeNum):
+    #         if not slime[i].dead:
+    #             slime[i].update_animation()
+    #     if not golemsoldier.dead:
+    #         golemsoldier.update_animation()
+    #     if not golemkamikaze.bomb:
+    #         golemkamikaze.update_animation()
+    # for i in range(SlimeNum):
+    #     if not slime[i].dead:
+    #         slime[i].move(character)
+    # if not golemsoldier.dead:
+    #     golemsoldier.move(character)
+    # if not golemkamikaze.bomb:
+    #     golemkamikaze.move(character)
+    # AnimationClock = (AnimationClock + 1) % 100
 
 
 def draw():
     clear_canvas()
     dungeons.draw()
-    for i in range(SlimeNum):
-        if slime[i].dead:
-            slime[i].draw()
-    if golemkamikaze.bomb:
-        golemkamikaze.draw()
-    golemsoldier.draw()
-    if not golemkamikaze.bomb:
-        golemkamikaze.draw()
-    for i in range(SlimeNum):
-        if not slime[i].expelCount and not slime[i].dead:
-            slime[i].draw()
+    # for i in range(SlimeNum):
+    #     if slime[i].dead:
+    #         slime[i].draw()
+    # if golemkamikaze.bomb:
+    #     golemkamikaze.draw()
+    # golemsoldier.draw()
+    # if not golemkamikaze.bomb:
+    #     golemkamikaze.draw()
+    # for i in range(SlimeNum):
+    #     if not slime[i].expelCount and not slime[i].dead:
+    #         slime[i].draw()
+    # for i in range(SlimeNum):
+    #     if not slime[i].dead and slime[i].expelCount:
+    #         slime[i].draw()
+
     character.draw()
-    for i in range(SlimeNum):
-        if not slime[i].dead and slime[i].expelCount:
-            slime[i].draw()
     update_canvas()
     handle_events()
     pass
