@@ -87,6 +87,7 @@ def update():
     global AnimationClock
     global character, slime, golemsoldier, golemkamikaze
     character.update()
+    delay(0.05)
     # if AnimationClock % 20 == 0:
     #     for i in range(SlimeNum):
     #         if not slime[i].dead:

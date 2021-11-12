@@ -1,12 +1,12 @@
 from pico2d import *
 
 W_UP, W_DOWN, S_UP, S_DOWN, A_UP, A_DOWN, D_UP, D_DOWN, \
-J_UP, J_DOWN, K_UP, K_DOWN, SPACE_UP, SPACE_DOWN, ATTACK_END, \
-AVOID_END_IDLE, AVOID_END_MOVE = range(17)
+J_UP, J_DOWN, K_UP, K_DOWN, SPACE_UP, SPACE_DOWN, ATTACK_END_IDLE, \
+ATTACK_END_MOVE, AVOID_END_IDLE, AVOID_END_MOVE = range(18)
 
 event_name = ['W_UP', 'W_DOWN', 'S_UP', 'S_DOWN', 'A_UP', 'A_DOWN', 'D_UP', 'D_DOWN', \
-'J_UP', 'J_DOWN', 'K_UP', 'K_DOWN', 'SPACE_UP', 'SPACE_DOWN', 'ATTACK_END', \
-'AVOID_END_IDLE', 'AVOID_END_MOVE']
+'J_UP', 'J_DOWN', 'K_UP', 'K_DOWN', 'SPACE_UP', 'SPACE_DOWN', 'ATTACK_END_IDLE', \
+'ATTACK_END_MOVE', 'AVOID_END_IDLE', 'AVOID_END_MOVE']
 
 key_event_table = {
     (SDL_KEYUP, SDLK_w): W_UP,
@@ -59,7 +59,7 @@ class IdleState:
         SetDir(Character, event)
         Character.update_dir()
 
-    def exit(Chracter, event):
+    def exit(Character, event):
         pass
 
     def do(Chracter):
@@ -80,7 +80,7 @@ class MoveState:
         Character.update_dir()
 
 
-    def exit(Chracter, event):
+    def exit(Character, event):
         pass
 
     def do(Chracter):
@@ -99,18 +99,12 @@ class AvoidState:
         SetDir(Character, event)
         Character.update_dir()
 
-    def exit(Chracter, event):
+    def exit(Character, event):
         pass
 
     def do(Chracter):
         if Chracter.animation == 7:
             if (Chracter.UpDowndir + Chracter.LeftRightdir) == 0:
-                Chracter.add_event(AVOID_END_IDLE)
-
-            elif (Chracter.UpDowndir + Chracter.LeftRightdir) == 2:
-                Chracter.add_event(AVOID_END_IDLE)
-
-            elif (Chracter.UpDowndir + Chracter.LeftRightdir) == -2:
                 Chracter.add_event(AVOID_END_IDLE)
             else:
                 Chracter.add_event(AVOID_END_MOVE)
@@ -130,33 +124,53 @@ class AttackState:
             Chracter.combo = 0
         if event == J_DOWN and Character.combo < 3:
             Character.combo += 1
+        SetDir(Character, event)
         pass
 
-    def exit(Chracter, event):
-        if event == ATTACK_END:
-            Chracter.combo = 0
+    def exit(Character, event):
+        if event == ATTACK_END_IDLE:
+            Character.combo = 0
 
+        elif event == ATTACK_END_MOVE:
+            Character.combo = 0
         pass
 
-    def do(Chracter):
-        if Chracter.combo == 1:
-            if Chracter.animation > 3:
-                Chracter.add_event(ATTACK_END)
-                Chracter.combo = 0
-            Chracter.animation = (Chracter.animation + 1) % 5
+    def do(Character):
+        if Character.combo == 1:
+            if Character.animation > 3:
+                if (Character.UpDowndir + Character.LeftRightdir) == 0:
+                    Character.add_event(ATTACK_END_IDLE)
+                elif (Character.UpDowndir + Character.LeftRightdir) == 2:
+                    Character.add_event(ATTACK_END_IDLE)
+                elif (Character.UpDowndir + Character.LeftRightdir) == -2:
+                    Character.add_event(ATTACK_END_IDLE)
+                else:
+                    Character.add_event(ATTACK_END_MOVE)
+                Character.combo = 0
+            Character.animation = (Character.animation + 1) % 5
             pass
-        elif Chracter.combo == 2:
-            if Chracter.animation > 7:
-                Chracter.add_event(ATTACK_END)
-                Chracter.combo = 0
-            Chracter.animation = (Chracter.animation + 1) % 9
+        elif Character.combo == 2:
+            if Character.animation > 7:
+                if (Character.UpDowndir + Character.LeftRightdir) == 0 or \
+                        (Character.UpDowndir + Character.LeftRightdir) == 2 or \
+                        (Character.UpDowndir + Character.LeftRightdir) == -2:
+                    Character.add_event(ATTACK_END_IDLE)
+                else:
+                    Character.add_event(ATTACK_END_MOVE)
+                Character.combo = 0
+            Character.animation = (Character.animation + 1) % 9
         else:
-            if Chracter.animation > 16:
-                Chracter.add_event(ATTACK_END)
-                Chracter.combo = 0
-            Chracter.animation = (Chracter.animation + 1) % 18
+            if Character.animation > 16:
+                if (Character.UpDowndir + Character.LeftRightdir) == 0 or \
+                        (Character.UpDowndir + Character.LeftRightdir) == 2 or \
+                        (Character.UpDowndir + Character.LeftRightdir) == -2:
+                    Character.add_event(ATTACK_END_IDLE)
+                else:
+                    Character.add_event(ATTACK_END_MOVE)
+                Character.combo = 0
+            Character.animation = (Character.animation + 1) % 18
 
-        if Chracter.animation == 3 or Chracter.animation == 7 or Chracter.animation == 12:
+        if Character.animation == 3 or Character.animation == 7 or Character.animation == 12:
             # 공격 체크
             pass
         pass
@@ -249,9 +263,9 @@ next_state_table = {
                 A_UP: AttackState, A_DOWN: AttackState,
                 D_UP: AttackState, D_DOWN: AttackState,
                 J_UP: AttackState, J_DOWN: AttackState,
-                K_UP: AttackState, K_DOWN: DefenceState,
-                SPACE_UP: AvoidState, SPACE_DOWN: AvoidState,
-                ATTACK_END: IdleState
+                K_UP: AttackState, K_DOWN: AttackState,
+                SPACE_UP: AttackState, SPACE_DOWN: AttackState,
+                ATTACK_END_IDLE: IdleState, ATTACK_END_MOVE: MoveState
                 },
 
     DefenceState: {W_UP: DefenceWalkState, W_DOWN: DefenceWalkState,
