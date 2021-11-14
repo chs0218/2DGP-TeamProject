@@ -7,9 +7,16 @@ J_DOWN, K_UP, K_DOWN, SPACE_DOWN, UPDATE_STATE = range(13)
 event_name = ['W_UP', 'W_DOWN', 'S_UP', 'S_DOWN', 'A_UP', 'A_DOWN', 'D_UP', 'D_DOWN',
               'J_DOWN', 'K_UP', 'K_DOWN', 'SPACE_DOWN', 'UPDATE_STATE']
 
-PIXEL_PER_METER = 30.0
-RUN_SPEED_KMPH = 30.0
+PIXEL_PER_METER = (100.0 / 1.8)
+RUN_SPEED_KMPH = 20.0
+AVOID_SPEED_KMPH = 30.0
+ATTACK_SPEED_KMPH = 30.0
+DEFENSE_SPEED_KMPH = 10.0
+
 RUN_SPEED_PPS = ((RUN_SPEED_KMPH * 1000.0 / 3600.0) * PIXEL_PER_METER)
+AVOID_SPEED_PPS = ((AVOID_SPEED_KMPH * 1000.0 / 3600.0) * PIXEL_PER_METER)
+ATTACK_SPEED_PPS = ((ATTACK_SPEED_KMPH * 1000.0 / 3600.0) * PIXEL_PER_METER)
+DEFENSE_SPEED_PPS = ((DEFENSE_SPEED_KMPH * 1000.0 / 3600.0) * PIXEL_PER_METER)
 
 FRAMES_PER_TIME = 16
 
@@ -57,7 +64,7 @@ class MoveState:
         pass
 
     def do(Character):
-        Character.move()
+        Character.move(RUN_SPEED_PPS)
         Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time) % 8
         pass
 
@@ -75,6 +82,7 @@ class AvoidState:
         pass
 
     def do(Character):
+        Character.move(AVOID_SPEED_PPS)
         Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time)
         if Character.animation > 8:
             Character.KeyBoardDic.update(space=False)
@@ -128,6 +136,12 @@ class AttackState:
         if Character.animation == 3 or Character.animation == 7 or Character.animation == 12:
             # 공격 체크
             pass
+        elif 1 < Character.animation < 2:
+            Character.move(ATTACK_SPEED_PPS)
+        elif 6 < Character.animation < 7:
+            Character.move(ATTACK_SPEED_PPS)
+        elif 10 < Character.animation < 11:
+            Character.move(ATTACK_SPEED_PPS)
         pass
 
     def draw(Character):
@@ -166,6 +180,7 @@ class DefenceWalkState:
         pass
 
     def do(Character):
+        Character.move(DEFENSE_SPEED_PPS)
         Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time) % 8
         pass
 
@@ -277,14 +292,18 @@ class Character:
     def move(self, speed):
         if self.dir == 0:
             self.y += speed * game_framework.frame_time
+            self.y = clamp(120, self.y, get_canvas_height() - 80)
         elif self.dir == 1:
             self.y -= speed * game_framework.frame_time
+            self.y = clamp(165, self.y, get_canvas_height() - 80)
         elif self.dir == 2:
             self.x -= speed * game_framework.frame_time
+            self.x = clamp(165, self.x, get_canvas_width() - 165)
         elif self.dir == 3:
             self.x += speed * game_framework.frame_time
+            self.x = clamp(165, self.x, get_canvas_width() - 165)
 
-
+    
 
 # class Character:
 #     def __init__(self):
