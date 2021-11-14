@@ -69,7 +69,7 @@ def enter():
     global golemkamikaze
     difficulty = title_state.difficulty
     SlimeNum = 4
-    character = Character.Chracter()
+    character = Character.Character()
     slime = [Slime() for i in range(SlimeNum)]
     golemsoldier = GolemSoldier()
     golemkamikaze = Golemkamikaze()
@@ -87,7 +87,6 @@ def update():
     global AnimationClock
     global character, slime, golemsoldier, golemkamikaze
     character.update()
-    delay(0.05)
     # if AnimationClock % 20 == 0:
     #     for i in range(SlimeNum):
     #         if not slime[i].dead:

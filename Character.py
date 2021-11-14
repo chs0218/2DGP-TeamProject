@@ -1,3 +1,4 @@
+import game_framework
 from pico2d import *
 
 W_UP, W_DOWN, S_UP, S_DOWN, A_UP, A_DOWN, D_UP, D_DOWN, \
@@ -5,6 +6,12 @@ J_DOWN, K_UP, K_DOWN, SPACE_DOWN, UPDATE_STATE = range(13)
 
 event_name = ['W_UP', 'W_DOWN', 'S_UP', 'S_DOWN', 'A_UP', 'A_DOWN', 'D_UP', 'D_DOWN',
               'J_DOWN', 'K_UP', 'K_DOWN', 'SPACE_DOWN', 'UPDATE_STATE']
+
+PIXEL_PER_METER = 30.0
+RUN_SPEED_KMPH = 30.0
+RUN_SPEED_PPS = ((RUN_SPEED_KMPH * 1000.0 / 3600.0) * PIXEL_PER_METER)
+
+FRAMES_PER_TIME = 16
 
 key_event_table = {
     (SDL_KEYUP, SDLK_w): W_UP,
@@ -24,35 +31,39 @@ key_event_table = {
 
 class IdleState:
     def enter(Character, event):
+        if Character.pre_state != Character.cur_state:
+            Character.animation = 0
         pass
 
     def exit(Character, event):
         pass
 
-    def do(Chracter):
-        Chracter.animation = (Chracter.animation + 1) % 8
+    def do(Character):
+        Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time) % 10
         pass
 
     def draw(Character):
-        Character.Idle.clip_draw(100 * Character.animation, 100 * Character.dir, 100, 100, Character.x, Character.y)
+        Character.Idle.clip_draw(100 * int(Character.animation), 100 * Character.dir,
+                                 100, 100, Character.x, Character.y)
         pass
 
 
 class MoveState:
     def enter(Character, event):
         pass
-        Character.update_dir()
 
 
     def exit(Character, event):
         pass
 
-    def do(Chracter):
-        Chracter.animation = (Chracter.animation + 1) % 8
+    def do(Character):
+        Character.move()
+        Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time) % 8
         pass
 
     def draw(Character):
-        Character.Walk.clip_draw(100 * Character.animation, 100 * Character.dir, 100, 100, Character.x, Character.y)
+        Character.Walk.clip_draw(100 * int(Character.animation), 100 * Character.dir,
+                                 100, 100, Character.x, Character.y)
         pass
 
 
@@ -63,12 +74,18 @@ class AvoidState:
     def exit(Character, event):
         pass
 
-    def do(Chracter):
-        Chracter.animation = (Chracter.animation + 1) % 8
+    def do(Character):
+        Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time)
+        if Character.animation > 8:
+            Character.KeyBoardDic.update(space=False)
+            Character.add_event(UPDATE_STATE)
+
+        Character.animation %= 8
         pass
 
     def draw(Character):
-        Character.Roll.clip_draw(100 * Character.animation, 100 * Character.dir, 100, 100, Character.x, Character.y)
+        Character.Roll.clip_draw(100 * int(Character.animation), 100 * Character.dir,
+                                 100, 100, Character.x, Character.y)
         pass
 
 
@@ -80,7 +97,33 @@ class AttackState:
         pass
 
     def do(Character):
-        Character.animation = (Character.animation + 1) % 18
+        if Character.combo == 1:
+            Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time)
+
+            if Character.animation > 5:
+                Character.KeyBoardDic.update(j=False)
+                Character.add_event(UPDATE_STATE)
+                Character.combo = 0
+
+            Character.animation %= 5
+            pass
+        elif Character.combo == 2:
+            Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time)
+
+            if Character.animation > 9:
+                Character.KeyBoardDic.update(j=False)
+                Character.add_event(UPDATE_STATE)
+                Character.combo = 0
+
+            Character.animation %= 9
+        else:
+            Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time)
+            if Character.animation > 18:
+                Character.KeyBoardDic.update(j=False)
+                Character.add_event(UPDATE_STATE)
+                Character.combo = 0
+
+            Character.animation %= 18
 
         if Character.animation == 3 or Character.animation == 7 or Character.animation == 12:
             # 공격 체크
@@ -89,10 +132,10 @@ class AttackState:
 
     def draw(Character):
         if Character.dir > 1:
-            Character.Attack.clip_draw(400 * Character.animation, 400 * Character.dir,
+            Character.Attack.clip_draw(400 * int(Character.animation), 400 * Character.dir,
                                        400, 400, Character.x, Character.y - 15)
         else:
-            Character.Attack.clip_draw(400 * Character.animation, 400 * Character.dir,
+            Character.Attack.clip_draw(400 * int(Character.animation), 400 * Character.dir,
                                        400, 400, Character.x, Character.y)
         pass
 
@@ -104,12 +147,12 @@ class DefenceState:
     def exit(Chracter, event):
         pass
 
-    def do(Chracter):
-        Chracter.animation = (Chracter.animation + 1) % Chracter.block
+    def do(Character):
+        Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time) % Character.block
         pass
 
     def draw(Character):
-        Character.Shield.clip_draw(100 * Character.animation, 100 * Character.dir,
+        Character.Shield.clip_draw(100 * int(Character.animation), 100 * Character.dir,
                                    100, 100, Character.x, Character.y)
         pass
     pass
@@ -122,77 +165,17 @@ class DefenceWalkState:
     def exit(Chracter, event):
         pass
 
-    def do(Chracter):
-        Chracter.animation = (Chracter.animation + 1) % 8
+    def do(Character):
+        Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time) % 8
         pass
 
     def draw(Character):
-        Character.ShieldMove.clip_draw(100 * Character.animation, 100 * Character.dir,
+        Character.ShieldMove.clip_draw(100 * int(Character.animation), 100 * Character.dir,
                                    100, 100, Character.x, Character.y)
         pass
 
 
-next_state_table = {
-    IdleState: {W_UP: MoveState, W_DOWN: MoveState,
-                S_UP: MoveState, S_DOWN: MoveState,
-                A_UP: MoveState, A_DOWN: MoveState,
-                D_UP: MoveState, D_DOWN: MoveState,
-                J_UP: IdleState, J_DOWN: AttackState,
-                K_UP: IdleState, K_DOWN: DefenceState,
-                SPACE_UP: IdleState, SPACE_DOWN: AvoidState,
-
-                },
-
-    MoveState:  {W_UP: IdleState, W_DOWN: IdleState,
-                S_UP: IdleState, S_DOWN: IdleState,
-                A_UP: IdleState, A_DOWN: IdleState,
-                D_UP: IdleState, D_DOWN: IdleState,
-                J_UP: IdleState, J_DOWN: AttackState,
-                K_UP: IdleState, K_DOWN: DefenceWalkState,
-                SPACE_UP: IdleState, SPACE_DOWN: AvoidState
-                },
-
-    AvoidState:  {W_UP: AvoidState, W_DOWN: AvoidState,
-                S_UP: AvoidState, S_DOWN: AvoidState,
-                A_UP: AvoidState, A_DOWN: AvoidState,
-                D_UP: AvoidState, D_DOWN: AvoidState,
-                J_UP: AvoidState, J_DOWN: AvoidState,
-                K_UP: AvoidState, K_DOWN: AvoidState,
-                SPACE_UP: AvoidState, SPACE_DOWN: AvoidState,
-                AVOID_END_IDLE: IdleState, AVOID_END_MOVE: MoveState
-                },
-
-    AttackState:  {W_UP: AttackState, W_DOWN: AttackState,
-                S_UP: AttackState, S_DOWN: AttackState,
-                A_UP: AttackState, A_DOWN: AttackState,
-                D_UP: AttackState, D_DOWN: AttackState,
-                J_UP: AttackState, J_DOWN: AttackState,
-                K_UP: AttackState, K_DOWN: AttackState,
-                SPACE_UP: AttackState, SPACE_DOWN: AttackState,
-                ATTACK_END_IDLE: IdleState, ATTACK_END_MOVE: MoveState
-                },
-
-    DefenceState: {W_UP: DefenceWalkState, W_DOWN: DefenceWalkState,
-                S_UP: DefenceWalkState, S_DOWN: DefenceWalkState,
-                A_UP: DefenceWalkState, A_DOWN: DefenceWalkState,
-                D_UP: DefenceWalkState, D_DOWN: DefenceWalkState,
-                J_UP: DefenceState, J_DOWN: AttackState,
-                K_UP: IdleState, K_DOWN: DefenceState,
-                SPACE_UP: AvoidState, SPACE_DOWN: AvoidState
-                },
-
-    DefenceWalkState: {W_UP: DefenceState, W_DOWN: DefenceState,
-                S_UP: DefenceState, S_DOWN: DefenceState,
-                A_UP: DefenceState, A_DOWN: DefenceState,
-                D_UP: DefenceState, D_DOWN: DefenceState,
-                J_UP: DefenceWalkState, J_DOWN: AttackState,
-                K_UP: MoveState, K_DOWN: DefenceWalkState,
-                SPACE_UP: AvoidState, SPACE_DOWN: AvoidState
-                }
-}
-
-
-class Chracter:
+class Character:
     def __init__(self):
         self.x = 630
         self.y = 120
@@ -223,7 +206,10 @@ class Chracter:
             self.pre_state = self.cur_state
             self.cur_state.exit(self, event)
             self.updateState()
+            if self.pre_state != self.cur_state:
+                self.animation = 0
             self.cur_state.enter(self, event)
+            print(self.cur_state)
 
     def updateKeyBoardDic(self, event):
         if event == W_UP:
@@ -244,6 +230,7 @@ class Chracter:
             self.KeyBoardDic.update(d=True)
         elif event == J_DOWN:
             self.KeyBoardDic.update(j=True)
+            self.combo += 1
         elif event == K_UP:
             self.KeyBoardDic.update(k=False)
         elif event == K_DOWN:
@@ -263,9 +250,7 @@ class Chracter:
             if self.KeyBoardDic['w'] or self.KeyBoardDic['s'] or self.KeyBoardDic['a'] or self.KeyBoardDic['d']:
                 self.cur_state = DefenceWalkState
             else:
-                if self.animation > 5:
-                    self.animation = 0
-                    self.cur_state = DefenceState
+                self.cur_state = DefenceState
         elif self.KeyBoardDic['w'] or self.KeyBoardDic['s'] or self.KeyBoardDic['a'] or self.KeyBoardDic['d']:
             self.cur_state = MoveState
         else:
@@ -289,6 +274,15 @@ class Chracter:
             key_event = key_event_table[(event.type, event.key)]
             self.add_event(key_event)
 
+    def move(self, speed):
+        if self.dir == 0:
+            self.y += speed * game_framework.frame_time
+        elif self.dir == 1:
+            self.y -= speed * game_framework.frame_time
+        elif self.dir == 2:
+            self.x -= speed * game_framework.frame_time
+        elif self.dir == 3:
+            self.x += speed * game_framework.frame_time
 
 
 
