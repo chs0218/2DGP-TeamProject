@@ -1,5 +1,7 @@
 import time
 frame_time = 0.0
+FRAMES_PER_TIME = 16
+MONSTER_FRAMES_PER_TIME = 12
 
 class GameState:
     def __init__(self, state):

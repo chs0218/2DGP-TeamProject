@@ -18,8 +18,6 @@ AVOID_SPEED_PPS = ((AVOID_SPEED_KMPH * 1000.0 / 3600.0) * PIXEL_PER_METER)
 ATTACK_SPEED_PPS = ((ATTACK_SPEED_KMPH * 1000.0 / 3600.0) * PIXEL_PER_METER)
 DEFENSE_SPEED_PPS = ((DEFENSE_SPEED_KMPH * 1000.0 / 3600.0) * PIXEL_PER_METER)
 
-FRAMES_PER_TIME = 16
-
 key_event_table = {
     (SDL_KEYUP, SDLK_w): W_UP,
     (SDL_KEYDOWN, SDLK_w): W_DOWN,
@@ -46,7 +44,7 @@ class IdleState:
         pass
 
     def do(Character):
-        Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time) % 10
+        Character.animation = (Character.animation + game_framework.FRAMES_PER_TIME * game_framework.frame_time) % 10
         pass
 
     def draw(Character):
@@ -65,7 +63,7 @@ class MoveState:
 
     def do(Character):
         Character.move(RUN_SPEED_PPS)
-        Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time) % 8
+        Character.animation = (Character.animation + game_framework.FRAMES_PER_TIME * game_framework.frame_time) % 8
         pass
 
     def draw(Character):
@@ -83,7 +81,7 @@ class AvoidState:
 
     def do(Character):
         Character.move(AVOID_SPEED_PPS)
-        Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time)
+        Character.animation = (Character.animation + game_framework.FRAMES_PER_TIME * game_framework.frame_time)
         if Character.animation > 8:
             Character.KeyBoardDic.update(space=False)
             Character.add_event(UPDATE_STATE)
@@ -106,7 +104,7 @@ class AttackState:
 
     def do(Character):
         if Character.combo == 1:
-            Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time)
+            Character.animation = (Character.animation + game_framework.FRAMES_PER_TIME * game_framework.frame_time)
 
             if Character.animation > 5:
                 Character.KeyBoardDic.update(j=False)
@@ -116,7 +114,7 @@ class AttackState:
             Character.animation %= 5
             pass
         elif Character.combo == 2:
-            Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time)
+            Character.animation = (Character.animation + game_framework.FRAMES_PER_TIME * game_framework.frame_time)
 
             if Character.animation > 9:
                 Character.KeyBoardDic.update(j=False)
@@ -125,7 +123,7 @@ class AttackState:
 
             Character.animation %= 9
         else:
-            Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time)
+            Character.animation = (Character.animation + game_framework.FRAMES_PER_TIME * game_framework.frame_time)
             if Character.animation > 18:
                 Character.KeyBoardDic.update(j=False)
                 Character.add_event(UPDATE_STATE)
@@ -145,7 +143,7 @@ class AttackState:
         pass
 
     def draw(Character):
-        if Character.dir > 1:
+        if Character.dir > 0:
             Character.Attack.clip_draw(400 * int(Character.animation), 400 * Character.dir,
                                        400, 400, Character.x, Character.y - 15)
         else:
@@ -162,7 +160,8 @@ class DefenceState:
         pass
 
     def do(Character):
-        Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time) % Character.block
+        Character.animation = (Character.animation + game_framework.FRAMES_PER_TIME
+                               * game_framework.frame_time) % Character.block
         pass
 
     def draw(Character):
@@ -181,7 +180,7 @@ class DefenceWalkState:
 
     def do(Character):
         Character.move(DEFENSE_SPEED_PPS)
-        Character.animation = (Character.animation + FRAMES_PER_TIME * game_framework.frame_time) % 8
+        Character.animation = (Character.animation + game_framework.FRAMES_PER_TIME * game_framework.frame_time) % 8
         pass
 
     def draw(Character):
@@ -224,7 +223,6 @@ class Character:
             if self.pre_state != self.cur_state:
                 self.animation = 0
             self.cur_state.enter(self, event)
-            print(self.cur_state)
 
     def updateKeyBoardDic(self, event):
         if event == W_UP:
@@ -295,145 +293,10 @@ class Character:
             self.y = clamp(120, self.y, get_canvas_height() - 80)
         elif self.dir == 1:
             self.y -= speed * game_framework.frame_time
-            self.y = clamp(165, self.y, get_canvas_height() - 80)
+            self.y = clamp(120, self.y, get_canvas_height() - 80)
         elif self.dir == 2:
             self.x -= speed * game_framework.frame_time
             self.x = clamp(165, self.x, get_canvas_width() - 165)
         elif self.dir == 3:
             self.x += speed * game_framework.frame_time
             self.x = clamp(165, self.x, get_canvas_width() - 165)
-
-    
-
-# class Character:
-#     def __init__(self):
-#         self.x = 630
-#         self.y = 120
-#         self.combo = 0
-#         self.state = 8
-#         self.block = 1
-#         self.Roll = load_image("player/player_roll.png")
-#         self.Die = load_image("player/Player_Die.png")
-#         self.Idle = load_image("player/player_idle.png")
-#         self.Walk = load_image("player/player_walk.png")
-#         self.Attack = load_image("player/player_attack.png")
-#         self.Shield = load_image("player/player_shield_defense.png")
-#         self.ShieldMove = load_image("player/player_shield_walk.png")
-#         self.animation = 0
-#         self.dir = 0
-#
-#     def draw(self):
-#         if self.state == 0:
-#             self.Roll.clip_draw(100 * self.animation, 100 * self.dir, 100, 100, self.x, self.y)
-#         elif self.state == 1:
-#             if self.dir > 1:
-#                 self.Attack.clip_draw(400 * self.animation, 400 * self.dir, 400, 400, self.x, self.y - 15)
-#             else:
-#                 self.Attack.clip_draw(400 * self.animation, 400 * self.dir, 400, 400, self.x, self.y)
-#         elif self.state == 2:
-#             self.Shield.clip_draw(100 * self.animation, 100 * self.dir, 100, 100, self.x, self.y)
-#         elif self.state == 3:
-#             self.ShieldMove.clip_draw(100 * self.animation, 100 * self.dir, 100, 100, self.x, self.y)
-#         elif self.state == 4:
-#             self.Walk.clip_draw(100 * self.animation, 100 * self.dir, 100, 100, self.x, self.y)
-#         else:
-#             self.Idle.clip_draw(100 * self.animation, 100 * self.dir, 100, 100, self.x, self.y)
-#
-#     def update_animation(self):
-#         if self.state == 0:
-#             if self.animation == 7:
-#                 KeyBoardDic.update(space=False)
-#             self.animation = (self.animation + 1) % 8
-#         elif self.state == 1:
-#             if self.combo == 1:
-#                 if self.animation > 3:
-#                     KeyBoardDic.update(j=False)
-#                     self.combo = 0
-#                 self.animation = (self.animation + 1) % 5
-#                 pass
-#             elif self.combo == 2:
-#                 if self.animation > 7:
-#                     KeyBoardDic.update(j=False)
-#                     self.combo = 0
-#                 self.animation = (self.animation + 1) % 9
-#             else:
-#                 if self.animation > 16:
-#                     KeyBoardDic.update(j=False)
-#                     self.combo = 0
-#                 self.animation = (self.animation + 1) % 18
-#
-#             if self.animation == 3 or self.animation == 7 or self.animation == 12:
-#                 check_attack()
-#         elif self.state == 2:
-#             self.animation = (self.animation + 1) % self.block
-#         elif 2 < self.state < 6:
-#             self.animation = (self.animation + 1) % 8
-#
-#     def update_state(self):
-#         if KeyBoardDic['space']:
-#             self.state = 0
-#         elif KeyBoardDic['j']:
-#             self.state = 1
-#         elif KeyBoardDic['k']:
-#             if KeyBoardDic['w'] or KeyBoardDic['s'] or KeyBoardDic['a'] or KeyBoardDic['d']:
-#                 self.state = 3
-#             else:
-#                 if self.animation > 5:
-#                     self.animation = 0
-#                 self.state = 2
-#         elif KeyBoardDic['w'] or KeyBoardDic['s'] or KeyBoardDic['a'] or KeyBoardDic['d']:
-#             self.state = 4
-#         else:
-#             self.state = 5
-#
-#         if not self.state == 1:
-#             if KeyBoardDic['w']:
-#                 self.dir = 0
-#             elif KeyBoardDic['s']:
-#                 self.dir = 1
-#             elif KeyBoardDic['a']:
-#                 self.dir = 2
-#             elif KeyBoardDic['d']:
-#                 self.dir = 3
-#
-#     def update_character(self):
-#         if self.state == 0:
-#             self.move(1.5)
-#         elif self.state == 1:
-#             if self.animation == 1:
-#                 self.move(2)
-#             elif self.animation == 6:
-#                 self.move(2)
-#             elif self.animation == 10:
-#                 self.move(1.5)
-#             pass
-#         elif self.state == 3:
-#             self.move(0.5)
-#             pass
-#         elif self.state == 4:
-#             self.move(1)
-#             pass
-#         else:
-#             pass
-#
-#     def move(self, i):
-#         if self.dir == 0:
-#             if self.y < get_canvas_height() - 80:
-#                 self.y += i
-#             else:
-#                 self.y = get_canvas_height() - 80
-#         elif self.dir == 1:
-#             if self.y > 120:
-#                 self.y -= i
-#             else:
-#                 self.y = 120
-#         elif self.dir == 2:
-#             if self.x > 160:
-#                 self.x -= i
-#             else:
-#                 self.x = 160
-#         elif self.dir == 3:
-#             if self.x < get_canvas_width() - 160:
-#                 self.x += i
-#             else:
-#                 self.x = get_canvas_width() - 160

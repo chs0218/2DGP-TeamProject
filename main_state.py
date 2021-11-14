@@ -3,10 +3,9 @@ import random
 import game_framework
 import title_state
 import Character
+import Slime
 from Dungeon import dungeon
 from Monster import *
-
-KeyBoardDic = {'w': False, 's': False, 'a': False, 'd': False, 'space': False, 'j': False, 'k': False}
 
 difficulty = None
 character = None
@@ -43,14 +42,9 @@ def check_attack():
         if golemsoldier.hp == 0:
             golemsoldier.dead = True
 
-def check_slime():
-    for i in range(SlimeNum):
-        slime[i].countexpel()
-    pass
-
 
 def handle_events():
-    global IsClear, KeyBoardDic, character
+    global IsClear, KeyBoardDic, character, slime
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -58,35 +52,36 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
         else:
-            check_slime()
+            slime.countexpel()
             character.handle_event(event)
 
     pass
 
 
 def enter():
-    global character, slime, dungeons, difficulty, SlimeNum, golemsoldier
-    global golemkamikaze
+    global character, slime, dungeons, difficulty, SlimeNum#, golemsoldier
+    #global golemkamikaze
     difficulty = title_state.difficulty
     SlimeNum = 4
     character = Character.Character()
-    slime = [Slime() for i in range(SlimeNum)]
-    golemsoldier = GolemSoldier()
-    golemkamikaze = Golemkamikaze()
+    slime = Slime.slime()
+    # golemsoldier = GolemSoldier()
+    # golemkamikaze = Golemkamikaze()
     dungeons = dungeon()
     pass
 
 
 def exit():
-    global character, dungeons, slime, golemsoldier, golemkamikaze
-    del character, dungeons, slime, golemsoldier, golemkamikaze
+    global character, dungeons, slime#, golemsoldier, golemkamikaze
+    del character, dungeons, slime#, golemsoldier, golemkamikaze
     pass
 
 
 def update():
     global AnimationClock
-    global character, slime, golemsoldier, golemkamikaze
+    global character, slime#, golemsoldier, golemkamikaze
     character.update()
+    slime.update()
     # if AnimationClock % 20 == 0:
     #     for i in range(SlimeNum):
     #         if not slime[i].dead:
@@ -108,6 +103,7 @@ def update():
 def draw():
     clear_canvas()
     dungeons.draw()
+    slime.draw()
     # for i in range(SlimeNum):
     #     if slime[i].dead:
     #         slime[i].draw()
