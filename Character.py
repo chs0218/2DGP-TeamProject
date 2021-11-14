@@ -1,12 +1,10 @@
 from pico2d import *
 
 W_UP, W_DOWN, S_UP, S_DOWN, A_UP, A_DOWN, D_UP, D_DOWN, \
-J_UP, J_DOWN, K_UP, K_DOWN, SPACE_UP, SPACE_DOWN, ATTACK_END_IDLE, \
-ATTACK_END_MOVE, AVOID_END_IDLE, AVOID_END_MOVE = range(18)
+J_DOWN, K_UP, K_DOWN, SPACE_DOWN, UPDATE_STATE = range(13)
 
-event_name = ['W_UP', 'W_DOWN', 'S_UP', 'S_DOWN', 'A_UP', 'A_DOWN', 'D_UP', 'D_DOWN', \
-'J_UP', 'J_DOWN', 'K_UP', 'K_DOWN', 'SPACE_UP', 'SPACE_DOWN', 'ATTACK_END_IDLE', \
-'ATTACK_END_MOVE', 'AVOID_END_IDLE', 'AVOID_END_MOVE']
+event_name = ['W_UP', 'W_DOWN', 'S_UP', 'S_DOWN', 'A_UP', 'A_DOWN', 'D_UP', 'D_DOWN',
+              'J_DOWN', 'K_UP', 'K_DOWN', 'SPACE_DOWN', 'UPDATE_STATE']
 
 key_event_table = {
     (SDL_KEYUP, SDLK_w): W_UP,
@@ -17,47 +15,16 @@ key_event_table = {
     (SDL_KEYDOWN, SDLK_a): A_DOWN,
     (SDL_KEYUP, SDLK_d): D_UP,
     (SDL_KEYDOWN, SDLK_d): D_DOWN,
-    (SDL_KEYUP, SDLK_j): J_UP,
     (SDL_KEYDOWN, SDLK_j): J_DOWN,
     (SDL_KEYUP, SDLK_k): K_UP,
     (SDL_KEYDOWN, SDLK_k): K_DOWN,
-    (SDL_KEYUP, SDLK_SPACE): SPACE_UP,
     (SDL_KEYDOWN, SDLK_SPACE): SPACE_DOWN
 }
 
 
-def SetDir(Character, event):
-    if event == W_DOWN:
-        Character.UpDowndir += 1
-
-    elif event == S_DOWN:
-        Character.UpDowndir -= 1
-
-    elif event == A_DOWN:
-        Character.LeftRightdir -= 1
-
-    elif event == D_DOWN:
-        Character.LeftRightdir += 1
-
-    elif event == W_UP:
-        Character.UpDowndir -= 1
-
-    elif event == S_UP:
-        Character.UpDowndir += 1
-
-    elif event == A_UP:
-        Character.LeftRightdir += 1
-
-    elif event == D_UP:
-        Character.LeftRightdir -= 1
-
-
 class IdleState:
     def enter(Character, event):
-        if Character.pre_state != IdleState:
-            Character.animation = 0
-        SetDir(Character, event)
-        Character.update_dir()
+        pass
 
     def exit(Character, event):
         pass
@@ -73,10 +40,7 @@ class IdleState:
 
 class MoveState:
     def enter(Character, event):
-        if Character.pre_state != MoveState:
-            Character.animation = 0
-
-        SetDir(Character, event)
+        pass
         Character.update_dir()
 
 
@@ -94,22 +58,13 @@ class MoveState:
 
 class AvoidState:
     def enter(Character, event):
-        if Character.pre_state != AvoidState:
-            Character.animation = 0
-        SetDir(Character, event)
-        Character.update_dir()
+        pass
 
     def exit(Character, event):
         pass
 
     def do(Chracter):
-        if Chracter.animation == 7:
-            if (Chracter.UpDowndir + Chracter.LeftRightdir) == 0:
-                Chracter.add_event(AVOID_END_IDLE)
-            else:
-                Chracter.add_event(AVOID_END_MOVE)
         Chracter.animation = (Chracter.animation + 1) % 8
-        print(Chracter.UpDowndir + Chracter.LeftRightdir)
         pass
 
     def draw(Character):
@@ -119,56 +74,13 @@ class AvoidState:
 
 class AttackState:
     def enter(Character, event):
-        if Character.pre_state != AttackState:
-            Character.animation = 0
-            Chracter.combo = 0
-        if event == J_DOWN and Character.combo < 3:
-            Character.combo += 1
-        SetDir(Character, event)
         pass
 
     def exit(Character, event):
-        if event == ATTACK_END_IDLE:
-            Character.combo = 0
-
-        elif event == ATTACK_END_MOVE:
-            Character.combo = 0
         pass
 
     def do(Character):
-        if Character.combo == 1:
-            if Character.animation > 3:
-                if (Character.UpDowndir + Character.LeftRightdir) == 0:
-                    Character.add_event(ATTACK_END_IDLE)
-                elif (Character.UpDowndir + Character.LeftRightdir) == 2:
-                    Character.add_event(ATTACK_END_IDLE)
-                elif (Character.UpDowndir + Character.LeftRightdir) == -2:
-                    Character.add_event(ATTACK_END_IDLE)
-                else:
-                    Character.add_event(ATTACK_END_MOVE)
-                Character.combo = 0
-            Character.animation = (Character.animation + 1) % 5
-            pass
-        elif Character.combo == 2:
-            if Character.animation > 7:
-                if (Character.UpDowndir + Character.LeftRightdir) == 0 or \
-                        (Character.UpDowndir + Character.LeftRightdir) == 2 or \
-                        (Character.UpDowndir + Character.LeftRightdir) == -2:
-                    Character.add_event(ATTACK_END_IDLE)
-                else:
-                    Character.add_event(ATTACK_END_MOVE)
-                Character.combo = 0
-            Character.animation = (Character.animation + 1) % 9
-        else:
-            if Character.animation > 16:
-                if (Character.UpDowndir + Character.LeftRightdir) == 0 or \
-                        (Character.UpDowndir + Character.LeftRightdir) == 2 or \
-                        (Character.UpDowndir + Character.LeftRightdir) == -2:
-                    Character.add_event(ATTACK_END_IDLE)
-                else:
-                    Character.add_event(ATTACK_END_MOVE)
-                Character.combo = 0
-            Character.animation = (Character.animation + 1) % 18
+        Character.animation = (Character.animation + 1) % 18
 
         if Character.animation == 3 or Character.animation == 7 or Character.animation == 12:
             # 공격 체크
@@ -187,11 +99,7 @@ class AttackState:
 
 class DefenceState:
     def enter(Character, event):
-        if Character.pre_state != DefenceState:
-            Character.animation = 0
-
-        SetDir(Character, event)
-        Character.update_dir()
+        pass
 
     def exit(Chracter, event):
         pass
@@ -209,11 +117,7 @@ class DefenceState:
 
 class DefenceWalkState:
     def enter(Character, event):
-        if Character.pre_state != DefenceWalkState:
-            Character.animation = 0
-
-        SetDir(Character, event)
-        Character.update_dir()
+        pass
 
     def exit(Chracter, event):
         pass
@@ -302,44 +206,80 @@ class Chracter:
         self.Shield = load_image("player/player_shield_defense.png")
         self.ShieldMove = load_image("player/player_shield_walk.png")
         self.animation = 0
-        self.UpDowndir = 0
-        self.LeftRightdir = 0
         self.dir = 0
         self.event_que = []
+        self.KeyBoardDic = {'w': False, 's': False, 'a': False, 'd': False, 'space': False, 'j': False, 'k': False}
         self.cur_state = IdleState
         self.pre_state = IdleState
-        self.cur_state.enter(self, None)
 
     def add_event(self, event):
         self.event_que.insert(0, event)
-
-    def update_dir(self):
-        if self.UpDowndir == 1:
-            self.dir = 0
-        elif self.UpDowndir == -1:
-            self.dir = 1
-        elif self.LeftRightdir == -1:
-            self.dir = 2
-        elif self.LeftRightdir == 1:
-            self.dir = 3
-        # print(self.UpDowndir)
-        # print(self.LeftRightdir)
 
     def update(self):
         self.cur_state.do(self)
         if len(self.event_que) > 0:
             event = self.event_que.pop()
+            self.updateKeyBoardDic(event)
+            self.pre_state = self.cur_state
             self.cur_state.exit(self, event)
-            try:
-                self.pre_state = self.cur_state
-                self.cur_state = next_state_table[self.cur_state][event]
-                # print('State:', self.cur_state.__name__, 'Event:', event_name[event])
-
-            except:
-                print('State:', self.cur_state.__name__, 'Event:', event_name[event])
-                exit(-1)  # 강제 종료
-
+            self.updateState()
             self.cur_state.enter(self, event)
+
+    def updateKeyBoardDic(self, event):
+        if event == W_UP:
+            self.KeyBoardDic.update(w=False)
+        elif event == W_DOWN:
+            self.KeyBoardDic.update(w=True)
+        elif event == S_UP:
+            self.KeyBoardDic.update(s=False)
+        elif event == S_DOWN:
+            self.KeyBoardDic.update(s=True)
+        elif event == A_UP:
+            self.KeyBoardDic.update(a=False)
+        elif event == A_DOWN:
+            self.KeyBoardDic.update(a=True)
+        elif event == D_UP:
+            self.KeyBoardDic.update(d=False)
+        elif event == D_DOWN:
+            self.KeyBoardDic.update(d=True)
+        elif event == J_DOWN:
+            self.KeyBoardDic.update(j=True)
+        elif event == K_UP:
+            self.KeyBoardDic.update(k=False)
+        elif event == K_DOWN:
+            self.KeyBoardDic.update(k=True)
+        elif event == SPACE_DOWN:
+            self.KeyBoardDic.update(space=True)
+            self.KeyBoardDic.update(j=False)
+
+    def updateState(self):
+        if self.KeyBoardDic['space']:
+            self.cur_state = AvoidState
+
+        elif self.KeyBoardDic['j']:
+            self.cur_state = AttackState
+
+        elif self.KeyBoardDic['k']:
+            if self.KeyBoardDic['w'] or self.KeyBoardDic['s'] or self.KeyBoardDic['a'] or self.KeyBoardDic['d']:
+                self.cur_state = DefenceWalkState
+            else:
+                if self.animation > 5:
+                    self.animation = 0
+                    self.cur_state = DefenceState
+        elif self.KeyBoardDic['w'] or self.KeyBoardDic['s'] or self.KeyBoardDic['a'] or self.KeyBoardDic['d']:
+            self.cur_state = MoveState
+        else:
+            self.cur_state = IdleState
+
+        if not self.cur_state == AttackState and not self.cur_state == AvoidState:
+            if self.KeyBoardDic['w']:
+                self.dir = 0
+            elif self.KeyBoardDic['s']:
+                self.dir = 1
+            elif self.KeyBoardDic['a']:
+                self.dir = 2
+            elif self.KeyBoardDic['d']:
+                self.dir = 3
 
     def draw(self):
         self.cur_state.draw(self)
@@ -348,6 +288,7 @@ class Chracter:
         if (event.type, event.key) in key_event_table:
             key_event = key_event_table[(event.type, event.key)]
             self.add_event(key_event)
+
 
 
 
