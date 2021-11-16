@@ -33,6 +33,8 @@ class AttackState:
         pass
 
     def draw(golemsoldier):
+        golemsoldier.attack.clip_draw(200 * golemsoldier.animationX, 200 * golemsoldier.animationDir,
+                                      200, 200, golemsoldier.x, golemsoldier.y)
         pass
 
 class DeadState:
