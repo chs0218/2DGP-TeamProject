@@ -1,10 +1,13 @@
 from pico2d import *
 import random
+
 import game_framework
 import title_state
 import Character
 import Slime
 import GolemSolider
+import Golemkamikaze
+
 from Dungeon import dungeon
 from Monster import *
 
@@ -61,13 +64,13 @@ def handle_events():
 
 def enter():
     global character, slime, dungeons, difficulty, SlimeNum, golemsoldier
-    #global golemkamikaze
+    global golemkamikaze
     difficulty = title_state.difficulty
     SlimeNum = 4
     character = Character.Character()
     slime = Slime.slime()
     golemsoldier = GolemSolider.golemsoldier()
-    # golemkamikaze = Golemkamikaze()
+    golemkamikaze = Golemkamikaze.golemkamikaze()
     dungeons = dungeon()
     pass
 
@@ -84,6 +87,7 @@ def update():
     character.update()
     slime.update()
     golemsoldier.update()
+    golemkamikaze.update()
     # if AnimationClock % 20 == 0:
     #     for i in range(SlimeNum):
     #         if not slime[i].dead:
@@ -107,6 +111,7 @@ def draw():
     dungeons.draw()
     slime.draw()
     golemsoldier.draw()
+    golemkamikaze.draw()
     # for i in range(SlimeNum):
     #     if slime[i].dead:
     #         slime[i].draw()

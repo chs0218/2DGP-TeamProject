@@ -1,79 +1,156 @@
-# from pico2d import *
-# import random
-# import Monster
-#
-# class Golemkamikaze:
-#     slept = None
-#     wake = None
-#     walk = None
-#     attack = None
-#     die = None
-#
-#     def __init__(self):
-#         self.x = random.randint(200, get_canvas_width() - 200)
-#         self.y = random.randint(200, get_canvas_height() - 100)
-#         self.animationX = 0
-#         self.animationY = 0
-#         self.statement = 0
-#         self.bomb = False
-#         self.i = 0.2
-#         if Golemkamikaze.die == None:
-#             Golemkamikaze.slept = load_image("monster/golemkamikaze/golemkamikaze_idleslept.png")
-#             Golemkamikaze.wake = load_image("monster/golemkamikaze/golemkamikaze_wake.png")
-#             Golemkamikaze.walk = load_image("monster/golemkamikaze/golemkamikaze_walk.png")
-#             Golemkamikaze.attack = load_image("monster/golemkamikaze/golemkamikaze_attack.png")
-#             Golemkamikaze.die = load_image("monster/golemkamikaze/kamikaze_die.png")
-#
-#     def draw(self):
-#         if self.bomb:
-#             self.die.draw(self.x, self.y)
-#         else:
-#             if self.statement == 0:
-#                 self.slept.draw(self.x, self.y)
-#             elif self.statement == 1:
-#                 self.wake.clip_draw(100 * self.animationX, 0, 100, 100, self.x, self.y)
-#             elif self.statement == 2:
-#                 self.walk.clip_draw(100 * self.animationX, 0, 100, 100, self.x, self.y)
-#             else:
-#                 self.attack.clip_draw(300 * self.animationX, 300 * self.animationY, 300, 300, self.x, self.y)
-#
-#     def update_animation(self):
-#         if self.statement == 0:
-#             pass
-#
-#         elif self.statement == 1:
-#             self.animationX += 1
-#             if self.animationX == 4:
-#                 self.statement = 2
-#                 self.animationX = 0
-#
-#         elif self.statement == 2:
-#             self.animationX = (self.animationX + 1) % 4
-#
-#         else:
-#             self.animationX += 1
-#             if self.animationX == 10:
-#                 if self.animationY == 0:
-#                     self.animationY += 1
-#                 else:
-#                     self.bomb = True
-#                     self.animationX = 0
-#                     self.animationY = 0
-#                 self.animationX = 0
-#
-#     def move(self, character):
-#         if self.statement == 0:
-#             if (self.x - character.x) ** 2 + (self.y - character.y) ** 2 < 6000:
-#                 self.statement = 1
-#
-#         elif self.statement == 2:
-#             t = self.i / 100
-#             self.x = (1 - t) * self.x + t * character.x
-#             self.y = (1 - t) * self.y + t * character.y
-#
-#             if (self.x - character.x) ** 2 + (self.y - character.y) ** 2 < 6000:
-#                 self.statement = 3
-#                 self.animationX = 0
-#             pass
-#         else:
-#             pass
+from pico2d import *
+import game_framework
+import random
+
+TURN_TO_WAKESTATE, TURN_TO_MOVESTATE, TURN_TO_ATTACKSTATE, TURN_TO_DEADSTATE = range(4)
+
+
+class MoveState:
+    def enter(golemkamikaze, event):
+        golemkamikaze.animationX = 0
+        golemkamikaze.animationY = 0
+        pass
+
+    def exit(golemkamikaze, event):
+        pass
+
+    def do(golemkamikaze):
+        from main_state import character
+        t = golemkamikaze.i / 100
+        golemkamikaze.x = (1 - t) * golemkamikaze.x + t * character.x
+        golemkamikaze.y = (1 - t) * golemkamikaze.y + t * character.y
+        if (golemkamikaze.x - character.x) ** 2 + (golemkamikaze.y - character.y) ** 2 < 6000:
+            golemkamikaze.add_event(TURN_TO_ATTACKSTATE)
+
+        golemkamikaze.animationX = (golemkamikaze.animationX +
+                                    game_framework.MONSTER_FRAMES_PER_TIME * game_framework.frame_time) % 4
+        pass
+
+    def draw(golemkamikaze):
+        golemkamikaze.walk.clip_draw(100 * int(golemkamikaze.animationX), 0,
+                                     100, 100, golemkamikaze.x, golemkamikaze.y)
+        pass
+
+
+class AttackState:
+    def enter(golemkamikaze, event):
+        golemkamikaze.animationX = 0
+        golemkamikaze.animationY = 0
+        pass
+
+    def exit(golemkamikaze, event):
+        pass
+
+    def do(golemkamikaze):
+        golemkamikaze.animationX = (golemkamikaze.animationX +
+                                    game_framework.MONSTER_FRAMES_PER_TIME * game_framework.frame_time)
+        if golemkamikaze.animationX > 10:
+            if golemkamikaze.animationY == 0:
+                golemkamikaze.animationY += 1
+            else:
+                golemkamikaze.add_event(TURN_TO_DEADSTATE)
+        pass
+
+    def draw(golemkamikaze):
+        golemkamikaze.attack.clip_draw(300 * int(golemkamikaze.animationX), 300 * golemkamikaze.animationY,
+                                       300, 300, golemkamikaze.x, golemkamikaze.y)
+        pass
+
+
+class SleepState:
+    def enter(golemkamikaze, event):
+        golemkamikaze.animationX = 0
+        golemkamikaze.animationY = 0
+        pass
+
+    def exit(golemkamikaze, event):
+        pass
+
+    def do(golemkamikaze):
+        from main_state import character
+        if (golemkamikaze.x - character.x) ** 2 + (golemkamikaze.y - character.y) ** 2 < 6000:
+            golemkamikaze.add_event(TURN_TO_WAKESTATE)
+        pass
+
+    def draw(golemkamikaze):
+        golemkamikaze.slept.draw(golemkamikaze.x, golemkamikaze.y)
+        pass
+
+
+class WakeState:
+    def enter(golemkamikaze, event):
+        golemkamikaze.animationX = 0
+        golemkamikaze.animationY = 0
+        pass
+
+    def exit(golemkamikaze, event):
+        pass
+
+    def do(golemkamikaze):
+        golemkamikaze.animationX = (golemkamikaze.animationX +
+                                    game_framework.MONSTER_FRAMES_PER_TIME * game_framework.frame_time)
+        if golemkamikaze.animationX > 4:
+            golemkamikaze.add_event(TURN_TO_MOVESTATE)
+        pass
+
+    def draw(golemkamikaze):
+        golemkamikaze.wake.clip_draw(100 * int(golemkamikaze.animationX), 0,
+                                     100, 100, golemkamikaze.x, golemkamikaze.y)
+        pass
+
+
+class DeadState:
+    def enter(golemkamikaze, event):
+        golemkamikaze.animationX = 0
+        golemkamikaze.animationY = 0
+        pass
+
+    def exit(slime, event):
+        pass
+
+    def do(slime):
+        pass
+
+    def draw(slime):
+        pass
+
+
+next_state_table = [WakeState, MoveState, AttackState, DeadState]
+
+
+class golemkamikaze:
+    slept = None
+    wake = None
+    walk = None
+    attack = None
+    die = None
+
+    def __init__(self):
+        self.x = random.randint(200, get_canvas_width() - 200)
+        self.y = random.randint(200, get_canvas_height() - 100)
+        self.animationX = 0
+        self.animationY = 0
+        self.event_que = []
+        self.cur_state = SleepState
+        self.i = 0.2
+        if golemkamikaze.die == None:
+            golemkamikaze.slept = load_image("monster/golemkamikaze/golemkamikaze_idleslept.png")
+            golemkamikaze.wake = load_image("monster/golemkamikaze/golemkamikaze_wake.png")
+            golemkamikaze.walk = load_image("monster/golemkamikaze/golemkamikaze_walk.png")
+            golemkamikaze.attack = load_image("monster/golemkamikaze/golemkamikaze_attack.png")
+            golemkamikaze.die = load_image("monster/golemkamikaze/kamikaze_die.png")
+
+
+    def draw(self):
+        self.cur_state.draw(self)
+
+    def add_event(self, event):
+        self.event_que.insert(0, event)
+
+    def update(self):
+        self.cur_state.do(self)
+        if len(self.event_que) > 0:
+            event = self.event_que.pop()
+            self.cur_state.exit(self, event)
+            self.cur_state = next_state_table[event]
+            self.cur_state.enter(self, event)
