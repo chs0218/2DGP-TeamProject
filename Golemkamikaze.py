@@ -1,5 +1,7 @@
 from pico2d import *
 import game_framework
+import game_world
+import Check_Collide
 import random
 
 TURN_TO_WAKESTATE, TURN_TO_MOVESTATE, TURN_TO_ATTACKSTATE, TURN_TO_DEADSTATE = range(4)
@@ -49,11 +51,19 @@ class AttackState:
                 golemkamikaze.animationY += 1
             else:
                 golemkamikaze.add_event(TURN_TO_DEADSTATE)
+
+        from main_state import character
+        if golemkamikaze.animationY == 1 and \
+                Check_Collide.check_collide(golemkamikaze, character) and character.powerOverwhelming < 0:
+            character.hp -= 1
+            character.powerOverwhelming = 2.0
+            character.check_hp()
         pass
 
     def draw(golemkamikaze):
         golemkamikaze.attack.clip_draw(300 * int(golemkamikaze.animationX), 300 * golemkamikaze.animationY,
                                        300, 300, golemkamikaze.x, golemkamikaze.y)
+        draw_rectangle(*golemkamikaze.get_attack_range())
         pass
 
 
@@ -101,17 +111,21 @@ class WakeState:
 
 class DeadState:
     def enter(golemkamikaze, event):
+        from main_state import cur_stage
+        cur_stage.mobnum -= 1
         golemkamikaze.animationX = 0
         golemkamikaze.animationY = 0
+        game_world.change_layer(golemkamikaze, 1, 0)
         pass
 
-    def exit(slime, event):
+    def exit(golemkamikaze, event):
         pass
 
-    def do(slime):
+    def do(golemkamikaze):
         pass
 
-    def draw(slime):
+    def draw(golemkamikaze):
+        golemkamikaze.die.draw(golemkamikaze.x, golemkamikaze.y)
         pass
 
 
@@ -140,9 +154,15 @@ class golemkamikaze:
             golemkamikaze.attack = load_image("monster/golemkamikaze/golemkamikaze_attack.png")
             golemkamikaze.die = load_image("monster/golemkamikaze/kamikaze_die.png")
 
+    def get_bb(self):
+        return self.x - 25, self.y - 25, self.x + 25, self.y + 25
+
+    def get_attack_range(self):
+        return self.x - 100, self.y - 100, self.x + 100, self.y + 100
 
     def draw(self):
         self.cur_state.draw(self)
+        draw_rectangle(*self.get_bb())
 
     def add_event(self, event):
         self.event_que.insert(0, event)

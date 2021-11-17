@@ -1,5 +1,8 @@
 from pico2d import *
+
+import Check_Collide
 import game_framework
+import game_world
 import random
 
 TURN_TO_MOVESTATE, TURN_TO_ATTACKSTATE, TURN_TO_ABSORBSTATE, TURN_TO_EXPELSTATE, TURN_TO_DEADSTATE = range(5)
@@ -23,6 +26,7 @@ class MoveState:
             seed = random.randint(0, 3)
             if seed == 3:
                 slime.add_event(TURN_TO_ABSORBSTATE)
+                game_world.change_layer(slime, 1, 3)
             else:
                 slime.add_event(TURN_TO_ATTACKSTATE)
 
@@ -54,10 +58,22 @@ class AttackState:
                 slime.animationY = 1
                 slime.add_event(TURN_TO_MOVESTATE)
                 slime.delay = 50
+        from main_state import character
+        if slime.animationY == 1 and slime.animationX > 6 and \
+                Check_Collide.check_collide(slime, character) and character.powerOverwhelming < 0:
+            character.hp -= 1
+            character.powerOverwhelming = 2.0
+            character.check_hp()
+        elif slime.animationY == 0 and slime.animationX < 3 and \
+                Check_Collide.check_collide(slime, character) and character.powerOverwhelming < 0:
+            character.hp -= 1
+            character.powerOverwhelming = 2.0
+            character.check_hp()
         pass
 
     def draw(slime):
         slime.attack.clip_draw(200 * int(slime.animationX), 200 * slime.animationY, 200, 200, slime.x, slime.y)
+        draw_rectangle(*slime.get_attack_range())
         pass
 
 
@@ -69,6 +85,7 @@ class AbsorbState:
         pass
 
     def exit(slime, event):
+        game_world.change_layer(slime, 3, 1)
         pass
 
     def do(slime):
@@ -87,6 +104,10 @@ class AbsorbState:
             slime.animationX = 0
             slime.expelCount = True
 
+        elif slime.animationY == 0 and slime.animationX > 10:
+                character.hp -= 1
+                character.powerOverwhelming = 2.0
+                character.check_hp()
         slime.animationX %= 10
         pass
 
@@ -118,6 +139,11 @@ class ExpelState:
 
 class DeadState:
     def enter(slime, event):
+        from main_state import cur_stage
+        cur_stage.mobnum -= 1
+        slime.animationX = 0
+        slime.animationY = 0
+        game_world.change_layer(slime, 1, 0)
         pass
 
     def exit(slime, event):
@@ -127,6 +153,7 @@ class DeadState:
         pass
 
     def draw(slime):
+        slime.die.draw(slime.x, slime.y)
         pass
 
 
@@ -162,8 +189,15 @@ class slime:
             slime.expel = load_image("monster/slime/slime_expel.png")
         pass
 
+    def get_bb(self):
+        return self.x - 25, self.y - 25, self.x + 25, self.y + 25
+
+    def get_attack_range(self):
+        return self.x - 60, self.y - 60, self.x + 60, self.y + 60
+
     def draw(self):
         self.cur_state.draw(self)
+        draw_rectangle(*self.get_bb())
 
     def add_event(self, event):
         self.event_que.insert(0, event)
@@ -180,3 +214,7 @@ class slime:
         if self.expelCount:
             self.expelnum += 1
         pass
+
+    def check_hp(self):
+        if self.hp == 0:
+            self.add_event(TURN_TO_DEADSTATE)

@@ -1,11 +1,12 @@
 import game_framework
+import Check_Collide
 from pico2d import *
 
 W_UP, W_DOWN, S_UP, S_DOWN, A_UP, A_DOWN, D_UP, D_DOWN, \
-J_DOWN, K_UP, K_DOWN, SPACE_DOWN, UPDATE_STATE = range(13)
+J_DOWN, K_UP, K_DOWN, SPACE_DOWN, UPDATE_STATE, TURN_TO_DEADSTATE = range(14)
 
 event_name = ['W_UP', 'W_DOWN', 'S_UP', 'S_DOWN', 'A_UP', 'A_DOWN', 'D_UP', 'D_DOWN',
-              'J_DOWN', 'K_UP', 'K_DOWN', 'SPACE_DOWN', 'UPDATE_STATE']
+              'J_DOWN', 'K_UP', 'K_DOWN', 'SPACE_DOWN', 'UPDATE_STATE', 'TURN_TO_DEADSTATE']
 
 PIXEL_PER_METER = (100.0 / 1.8)
 RUN_SPEED_KMPH = 20.0
@@ -131,8 +132,16 @@ class AttackState:
 
             Character.animation %= 18
 
-        if Character.animation == 3 or Character.animation == 7 or Character.animation == 12:
-            # 공격 체크
+        if 3 < Character.animation < 4 or 7 < Character.animation < 8 or 11 < Character.animation < 12:
+            from main_state import slime, golemsoldier
+            if Check_Collide.check_collide(Character, slime):
+                slime.hp -= 1
+                slime.check_hp()
+                pass
+            if Check_Collide.check_collide(Character, golemsoldier):
+                golemsoldier.hp -= 1
+                golemsoldier.check_hp()
+                pass
             pass
         elif 1 < Character.animation < 2:
             Character.move(ATTACK_SPEED_PPS)
@@ -149,6 +158,8 @@ class AttackState:
         else:
             Character.Attack.clip_draw(400 * int(Character.animation), 400 * Character.dir,
                                        400, 400, Character.x, Character.y)
+
+        draw_rectangle(*Character.get_attack_range())
         pass
 
 
@@ -188,6 +199,23 @@ class DefenceWalkState:
                                    100, 100, Character.x, Character.y)
         pass
 
+class DeadState:
+    def enter(Character, event):
+        pass
+
+    def exit(Chracter, event):
+        pass
+
+    def do(Character):
+        if Character.animation < 10:
+            Character.animation = (Character.animation + game_framework.FRAMES_PER_TIME * game_framework.frame_time)
+        pass
+
+    def draw(Character):
+        Character.Die.clip_draw(100 * int(Character.animation), 0,
+                                   100, 100, Character.x, Character.y)
+        pass
+
 
 class Character:
     def __init__(self):
@@ -202,6 +230,8 @@ class Character:
         self.Attack = load_image("player/player_attack.png")
         self.Shield = load_image("player/player_shield_defense.png")
         self.ShieldMove = load_image("player/player_shield_walk.png")
+        self.hp = 1
+        self.powerOverwhelming = 2.0
         self.animation = 0
         self.dir = 0
         self.event_que = []
@@ -209,12 +239,27 @@ class Character:
         self.cur_state = IdleState
         self.pre_state = IdleState
 
+    def get_bb(self):
+        return self.x - 25, self.y - 25, self.x + 25, self.y + 25
+
+    def get_attack_range(self):
+        if self.dir == 0:
+            return self.x - 50, self.y, self.x + 50, self.y + 50
+        elif self.dir == 1:
+            return self.x - 50, self.y, self.x + 50, self.y - 50
+        elif self.dir == 2:
+            return self.x - 50, self.y - 50, self.x, self.y + 50
+        elif self.dir == 3:
+            return self.x, self.y - 50, self.x + 50, self.y + 50
+
     def add_event(self, event):
         self.event_que.insert(0, event)
 
     def update(self):
+        if self.powerOverwhelming > 0:
+            self.powerOverwhelming -= game_framework.frame_time
         self.cur_state.do(self)
-        if len(self.event_que) > 0:
+        if len(self.event_que) > 0 and self.cur_state != DeadState:
             event = self.event_que.pop()
             self.updateKeyBoardDic(event)
             self.pre_state = self.cur_state
@@ -223,6 +268,7 @@ class Character:
             if self.pre_state != self.cur_state:
                 self.animation = 0
             self.cur_state.enter(self, event)
+
 
     def updateKeyBoardDic(self, event):
         if event == W_UP:
@@ -281,6 +327,7 @@ class Character:
 
     def draw(self):
         self.cur_state.draw(self)
+        draw_rectangle(*self.get_bb())
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
@@ -300,3 +347,8 @@ class Character:
         elif self.dir == 3:
             self.x += speed * game_framework.frame_time
             self.x = clamp(165, self.x, get_canvas_width() - 165)
+
+    def check_hp(self):
+        if self.hp == 0:
+            self.animation = 0
+            self.cur_state = DeadState

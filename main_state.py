@@ -2,6 +2,7 @@ from pico2d import *
 import random
 
 import game_framework
+import game_world
 import title_state
 import Character
 import Slime
@@ -9,46 +10,20 @@ import GolemSolider
 import Golemkamikaze
 
 from Dungeon import dungeon
-from Monster import *
 
 difficulty = None
 character = None
 slime = None
 golemsoldier = None
 golemkamikaze = None
-IsClear = False
-dungeons = None
-AnimationClock = 0
-SlimeNum = 0
-
-def check_attack():
-    LeftX = character.x - 50
-    LeftY = character.y - 50
-    RightX = character.x + 50
-    RightY = character.y + 50
-
-    if character.dir == 0:
-        pass
-    elif character.dir == 1:
-        pass
-    elif character.dir == 2:
-        pass
-    else:
-        pass
-
-    for i in range(SlimeNum):
-        if LeftX < slime[i].x < RightX and LeftY < slime[i].y < RightY:
-            slime[i].hp -= 1
-            if slime[i].hp == 0:
-                slime[i].dead = True
-    if LeftX < golemsoldier.x < RightX and LeftY < golemsoldier.y < RightY:
-        golemsoldier.hp -= 1
-        if golemsoldier.hp == 0:
-            golemsoldier.dead = True
+cur_stage = None
+stage1 = None
+stage2 = None
+stage3 = None
 
 
 def handle_events():
-    global IsClear, KeyBoardDic, character, slime
+    global KeyBoardDic, character, slime
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -63,71 +38,39 @@ def handle_events():
 
 
 def enter():
-    global character, slime, dungeons, difficulty, SlimeNum, golemsoldier
+    global character, slime, stage1, stage2, stage3, cur_stage, difficulty, golemsoldier
     global golemkamikaze
     difficulty = title_state.difficulty
-    SlimeNum = 4
     character = Character.Character()
     slime = Slime.slime()
     golemsoldier = GolemSolider.golemsoldier()
     golemkamikaze = Golemkamikaze.golemkamikaze()
-    dungeons = dungeon()
+    stage1 = dungeon(3)
+    stage2 = dungeon(5)
+    stage3 = dungeon(7)
+    cur_stage = stage1
+    game_world.add_object(stage1, 0)
+    game_world.add_object(slime, 1)
+    game_world.add_object(golemsoldier, 1)
+    game_world.add_object(golemkamikaze, 1)
+    game_world.add_object(character, 2)
     pass
 
 
 def exit():
-    global character, dungeons, slime, golemsoldier, golemkamikaze
-    del character, dungeons, slime, golemsoldier, golemkamikaze
+    game_world.clear()
     pass
 
 
 def update():
-    global AnimationClock
-    global character, slime, golemsoldier, golemkamikaze
-    character.update()
-    slime.update()
-    golemsoldier.update()
-    golemkamikaze.update()
-    # if AnimationClock % 20 == 0:
-    #     for i in range(SlimeNum):
-    #         if not slime[i].dead:
-    #             slime[i].update_animation()
-    #     if not golemsoldier.dead:
-    #         golemsoldier.update_animation()
-    #     if not golemkamikaze.bomb:
-    #         golemkamikaze.update_animation()
-    # for i in range(SlimeNum):
-    #     if not slime[i].dead:
-    #         slime[i].move(character)
-    # if not golemsoldier.dead:
-    #     golemsoldier.move(character)
-    # if not golemkamikaze.bomb:
-    #     golemkamikaze.move(character)
-    # AnimationClock = (AnimationClock + 1) % 100
+    for game_object in game_world.all_objects():
+        game_object.update()
 
 
 def draw():
     clear_canvas()
-    dungeons.draw()
-    slime.draw()
-    golemsoldier.draw()
-    golemkamikaze.draw()
-    # for i in range(SlimeNum):
-    #     if slime[i].dead:
-    #         slime[i].draw()
-    # if golemkamikaze.bomb:
-    #     golemkamikaze.draw()
-    # golemsoldier.draw()
-    # if not golemkamikaze.bomb:
-    #     golemkamikaze.draw()
-    # for i in range(SlimeNum):
-    #     if not slime[i].expelCount and not slime[i].dead:
-    #         slime[i].draw()
-    # for i in range(SlimeNum):
-    #     if not slime[i].dead and slime[i].expelCount:
-    #         slime[i].draw()
-
-    character.draw()
+    for game_object in game_world.all_objects():
+        game_object.draw()
     update_canvas()
     handle_events()
     pass
