@@ -4,6 +4,7 @@ import game_framework
 import title_state
 import Character
 import Slime
+import GolemSolider
 from Dungeon import dungeon
 from Monster import *
 
@@ -59,29 +60,30 @@ def handle_events():
 
 
 def enter():
-    global character, slime, dungeons, difficulty, SlimeNum#, golemsoldier
+    global character, slime, dungeons, difficulty, SlimeNum, golemsoldier
     #global golemkamikaze
     difficulty = title_state.difficulty
     SlimeNum = 4
     character = Character.Character()
     slime = Slime.slime()
-    # golemsoldier = GolemSoldier()
+    golemsoldier = GolemSolider.golemsoldier()
     # golemkamikaze = Golemkamikaze()
     dungeons = dungeon()
     pass
 
 
 def exit():
-    global character, dungeons, slime#, golemsoldier, golemkamikaze
-    del character, dungeons, slime#, golemsoldier, golemkamikaze
+    global character, dungeons, slime, golemsoldier, golemkamikaze
+    del character, dungeons, slime, golemsoldier, golemkamikaze
     pass
 
 
 def update():
     global AnimationClock
-    global character, slime#, golemsoldier, golemkamikaze
+    global character, slime, golemsoldier, golemkamikaze
     character.update()
     slime.update()
+    golemsoldier.update()
     # if AnimationClock % 20 == 0:
     #     for i in range(SlimeNum):
     #         if not slime[i].dead:
@@ -104,6 +106,7 @@ def draw():
     clear_canvas()
     dungeons.draw()
     slime.draw()
+    golemsoldier.draw()
     # for i in range(SlimeNum):
     #     if slime[i].dead:
     #         slime[i].draw()
