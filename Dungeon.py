@@ -1,6 +1,7 @@
 from pico2d import *
 import game_framework
 
+# stage 리스트로 구현하자
 class dungeon:
     BK = None
     BK2 = None
