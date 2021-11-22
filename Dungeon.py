@@ -34,5 +34,6 @@ class dungeon:
     def draw(self):
         dungeon.BK.draw(get_canvas_width() // 2, get_canvas_height() // 2)
         dungeon.BK2.draw(get_canvas_width() // 2, get_canvas_height() // 2)
-        dungeon.Door.clip_draw(200 * int(self.DoorAnimation), 0, 200, 200, get_canvas_width() // 2, get_canvas_height() - 60)
+        dungeon.Door.clip_draw(200 * int(self.DoorAnimation), 0, 200, 200,
+                               get_canvas_width() // 2, get_canvas_height() - 60)
         draw_rectangle(*self.get_bb())

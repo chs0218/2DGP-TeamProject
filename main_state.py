@@ -23,11 +23,19 @@ stage3 = None
 
 
 def handle_events():
-    global KeyBoardDic, character, slime
+    global KeyBoardDic, character, slime, stage1
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
             game_framework.quit()
+        if event.type == SDL_KEYDOWN and event.key == SDLK_1:
+            stage1.isClear = True
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_2 and stage1.isClear:
+            stage1.isClear = False
+            stage1.DoorAnimation = 0
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_3:
+            character.cur_state = Character.IdleState
+            character.hp = 1
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
         else:
