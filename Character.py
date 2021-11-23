@@ -1,4 +1,5 @@
 import game_framework
+import server
 import Check_Collide
 from pico2d import *
 
@@ -133,14 +134,13 @@ class AttackState:
             Character.animation %= 18
 
         if 3 < Character.animation < 4 or 7 < Character.animation < 8 or 11 < Character.animation < 12:
-            from main_state import slime, golemsoldier
-            if Check_Collide.check_collide(Character, slime):
-                slime.hp -= 1
-                slime.check_hp()
+            if Check_Collide.check_collide(Character, server.slime):
+                server.slime.hp -= 1
+                server.slime.check_hp()
                 pass
-            if Check_Collide.check_collide(Character, golemsoldier):
-                golemsoldier.hp -= 1
-                golemsoldier.check_hp()
+            if Check_Collide.check_collide(Character, server.golemsoldier):
+                server.golemsoldier.hp -= 1
+                server.golemsoldier.check_hp()
                 pass
             pass
         elif 1 < Character.animation < 2:

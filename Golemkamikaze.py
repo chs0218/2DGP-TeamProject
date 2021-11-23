@@ -2,6 +2,7 @@ from pico2d import *
 import game_framework
 import game_world
 import Check_Collide
+import server
 import random
 
 TURN_TO_WAKESTATE, TURN_TO_MOVESTATE, TURN_TO_ATTACKSTATE, TURN_TO_DEADSTATE = range(4)
@@ -17,11 +18,10 @@ class MoveState:
         pass
 
     def do(golemkamikaze):
-        from main_state import character
         t = golemkamikaze.i / 100
-        golemkamikaze.x = (1 - t) * golemkamikaze.x + t * character.x
-        golemkamikaze.y = (1 - t) * golemkamikaze.y + t * character.y
-        if (golemkamikaze.x - character.x) ** 2 + (golemkamikaze.y - character.y) ** 2 < 6000:
+        golemkamikaze.x = (1 - t) * golemkamikaze.x + t * server.character.x
+        golemkamikaze.y = (1 - t) * golemkamikaze.y + t * server.character.y
+        if (golemkamikaze.x - server.character.x) ** 2 + (golemkamikaze.y - server.character.y) ** 2 < 6000:
             golemkamikaze.add_event(TURN_TO_ATTACKSTATE)
 
         golemkamikaze.animationX = (golemkamikaze.animationX +
@@ -52,12 +52,11 @@ class AttackState:
             else:
                 golemkamikaze.add_event(TURN_TO_DEADSTATE)
 
-        from main_state import character
         if golemkamikaze.animationY == 1 and \
-                Check_Collide.check_collide(golemkamikaze, character) and character.powerOverwhelming < 0:
-            character.hp -= 1
-            character.powerOverwhelming = 2.0
-            character.check_hp()
+                Check_Collide.check_collide(golemkamikaze, server.character) and server.character.powerOverwhelming < 0:
+            server.character.hp -= 1
+            server.character.powerOverwhelming = 2.0
+            server.character.check_hp()
         pass
 
     def draw(golemkamikaze):
@@ -77,8 +76,7 @@ class SleepState:
         pass
 
     def do(golemkamikaze):
-        from main_state import character
-        if (golemkamikaze.x - character.x) ** 2 + (golemkamikaze.y - character.y) ** 2 < 6000:
+        if (golemkamikaze.x - server.character.x) ** 2 + (golemkamikaze.y - server.character.y) ** 2 < 6000:
             golemkamikaze.add_event(TURN_TO_WAKESTATE)
         pass
 
@@ -111,8 +109,8 @@ class WakeState:
 
 class DeadState:
     def enter(golemkamikaze, event):
-        from main_state import cur_stage
-        cur_stage.mobnum -= 1
+        # from main_state import cur_stage
+        # cur_stage.mobnum -= 1
         golemkamikaze.animationX = 0
         golemkamikaze.animationY = 0
         game_world.change_layer(golemkamikaze, 1, 0)

@@ -1,6 +1,7 @@
 from pico2d import *
 import game_framework
 import game_world
+import server
 import Check_Collide
 import random
 
@@ -16,43 +17,42 @@ class MoveState:
         pass
 
     def do(golemsoldier):
-        from main_state import character
         if golemsoldier.delay == 0:
             t = golemsoldier.i / 100
-            golemsoldier.x = (1 - t) * golemsoldier.x + t * character.x
-            golemsoldier.y = (1 - t) * golemsoldier.y + t * character.y
-            if golemsoldier.x < character.x:
-                dx = character.x - golemsoldier.x
-                if golemsoldier.y < character.y:
-                    dy = character.y - golemsoldier.y
+            golemsoldier.x = (1 - t) * golemsoldier.x + t * server.character.x
+            golemsoldier.y = (1 - t) * golemsoldier.y + t * server.character.y
+            if golemsoldier.x < server.character.x:
+                dx = server.character.x - golemsoldier.x
+                if golemsoldier.y < server.character.y:
+                    dy = server.character.y - golemsoldier.y
                     if dx < dy:
                         golemsoldier.animationDir = 0
                     else:
                         golemsoldier.animationDir = 3
 
                 else:
-                    dy = golemsoldier.y - character.y
+                    dy = golemsoldier.y - server.character.y
                     if dx < dy:
                         golemsoldier.animationDir = 1
                     else:
                         golemsoldier.animationDir = 3
             else:
-                dx = golemsoldier.x - character.x
-                if golemsoldier.y < character.y:
-                    dy = character.y - golemsoldier.y
+                dx = golemsoldier.x - server.character.x
+                if golemsoldier.y < server.character.y:
+                    dy = server.character.y - golemsoldier.y
                     if dx < dy:
                         golemsoldier.animationDir = 0
                     else:
                         golemsoldier.animationDir = 2
 
                 else:
-                    dy = golemsoldier.y - character.y
+                    dy = golemsoldier.y - server.character.y
                     if dx < dy:
                         golemsoldier.animationDir = 1
                     else:
                         golemsoldier.animationDir = 2
 
-            if (golemsoldier.x - character.x) ** 2 + (golemsoldier.y - character.y) ** 2 < 6000:
+            if (golemsoldier.x - server.character.x) ** 2 + (golemsoldier.y - server.character.y) ** 2 < 6000:
                 golemsoldier.add_event(TURN_TO_ATTACKSTATE)
                 golemsoldier.animationX = 0
 
@@ -83,12 +83,11 @@ class AttackState:
         if golemsoldier.animationX > 13:
             golemsoldier.add_event(TURN_TO_MOVESTATE)
 
-        from main_state import character
         if golemsoldier.animationX > 7 and \
-                Check_Collide.check_collide(golemsoldier, character) and character.powerOverwhelming < 0:
-            character.hp -= 1
-            character.powerOverwhelming = 2.0
-            character.check_hp()
+                Check_Collide.check_collide(golemsoldier, server.character) and server.character.powerOverwhelming < 0:
+            server.character.hp -= 1
+            server.character.powerOverwhelming = 2.0
+            server.character.check_hp()
         pass
 
     def draw(golemsoldier):
@@ -99,8 +98,8 @@ class AttackState:
 
 class DeadState:
     def enter(golemsoldier, event):
-        from main_state import cur_stage
-        cur_stage.mobnum -= 1
+        # from main_state import cur_stage
+        # cur_stage.mobnum -= 1
         golemsoldier.animationX = 0
         game_world.change_layer(golemsoldier, 1, 0)
         pass

@@ -1,5 +1,6 @@
 from pico2d import *
 
+import server
 import Check_Collide
 import game_framework
 import game_world
@@ -18,11 +19,10 @@ class MoveState:
         pass
 
     def do(slime):
-        from main_state import character
         t = slime.i / 100
-        slime.x = (1 - t) * slime.x + t * character.x
-        slime.y = (1 - t) * slime.y + t * character.y
-        if (slime.x - character.x) ** 2 + (slime.y - character.y) ** 2 < 3200:
+        slime.x = (1 - t) * slime.x + t * server.character.x
+        slime.y = (1 - t) * slime.y + t * server.character.y
+        if (slime.x - server.character.x) ** 2 + (slime.y - server.character.y) ** 2 < 3200:
             seed = random.randint(0, 3)
             if seed == 3:
                 slime.add_event(TURN_TO_ABSORBSTATE)
@@ -58,17 +58,16 @@ class AttackState:
                 slime.animationY = 1
                 slime.add_event(TURN_TO_MOVESTATE)
                 slime.delay = 50
-        from main_state import character
         if slime.animationY == 1 and slime.animationX > 6 and \
-                Check_Collide.check_collide(slime, character) and character.powerOverwhelming < 0:
-            character.hp -= 1
-            character.powerOverwhelming = 2.0
-            character.check_hp()
+                Check_Collide.check_collide(slime, server.character) and server.character.powerOverwhelming < 0:
+            server.character.hp -= 1
+            server.character.powerOverwhelming = 2.0
+            server.character.check_hp()
         elif slime.animationY == 0 and slime.animationX < 3 and \
-                Check_Collide.check_collide(slime, character) and character.powerOverwhelming < 0:
-            character.hp -= 1
-            character.powerOverwhelming = 2.0
-            character.check_hp()
+                Check_Collide.check_collide(slime, server.character) and server.character.powerOverwhelming < 0:
+            server.character.hp -= 1
+            server.character.powerOverwhelming = 2.0
+            server.character.check_hp()
         pass
 
     def draw(slime):
@@ -89,13 +88,11 @@ class AbsorbState:
         pass
 
     def do(slime):
-        from main_state import character
-
         if slime.expelnum > 10:
             slime.add_event(TURN_TO_EXPELSTATE)
 
-        slime.x = character.x
-        slime.y = character.y
+        slime.x = server.character.x
+        slime.y = server.character.y
 
         slime.animationX = (slime.animationX + game_framework.MONSTER_FRAMES_PER_TIME * game_framework.frame_time)
 
@@ -105,9 +102,9 @@ class AbsorbState:
             slime.expelCount = True
 
         elif slime.animationY == 0 and slime.animationX > 10:
-                character.hp -= 1
-                character.powerOverwhelming = 2.0
-                character.check_hp()
+                server.character.hp -= 1
+                server.character.powerOverwhelming = 2.0
+                server.character.check_hp()
         slime.animationX %= 10
         pass
 
@@ -139,8 +136,8 @@ class ExpelState:
 
 class DeadState:
     def enter(slime, event):
-        from main_state import cur_stage
-        cur_stage.mobnum -= 1
+        # from main_state import cur_stage
+        # cur_stage.mobnum -= 1
         slime.animationX = 0
         slime.animationY = 0
         game_world.change_layer(slime, 1, 0)

@@ -1,5 +1,6 @@
 import game_framework
 import main_state
+import server
 from pico2d import *
 
 class Stage:
@@ -30,8 +31,8 @@ def enter():
 
 
 def exit():
-    global stage, difficulty
-    difficulty = stage.num
+    global stage
+    server.difficulty = stage.num
     del stage
     pass
 
