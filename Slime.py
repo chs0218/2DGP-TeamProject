@@ -1,5 +1,6 @@
 from pico2d import *
 
+import Character
 import server
 import Check_Collide
 import game_framework
@@ -40,6 +41,7 @@ class MoveState:
 
 class AttackState:
     def enter(slime, event):
+        slime.attacked = False
         slime.animationX = 0
         slime.animationY = 1
         pass
@@ -59,15 +61,33 @@ class AttackState:
                 slime.add_event(TURN_TO_MOVESTATE)
                 slime.delay = 50
         if slime.animationY == 1 and slime.animationX > 6 and \
-                Check_Collide.check_collide(slime, server.character) and server.character.powerOverwhelming < 0:
-            server.character.hp -= 1
-            server.character.powerOverwhelming = 2.0
-            server.character.check_hp()
+                Check_Collide.check_attack(slime, server.character) and server.character.powerOverwhelming < 0:
+            if server.character.check_defense(slime):
+                if slime.attacked:
+                    pass
+                else:
+                    slime.attacked = True
+                    server.character.cur_state = Character.DefenceState
+                    server.character.animation = 0
+                    server.character.block = 6
+            else:
+                server.character.hp -= 1
+                server.character.powerOverwhelming = 2.0
+                server.character.check_hp()
         elif slime.animationY == 0 and slime.animationX < 3 and \
-                Check_Collide.check_collide(slime, server.character) and server.character.powerOverwhelming < 0:
-            server.character.hp -= 1
-            server.character.powerOverwhelming = 2.0
-            server.character.check_hp()
+                Check_Collide.check_attack(slime, server.character) and server.character.powerOverwhelming < 0:
+            if server.character.check_defense(slime):
+                if slime.attacked:
+                    pass
+                else:
+                    slime.attacked = True
+                    server.character.cur_state = Character.DefenceState
+                    server.character.animation = 0
+                    server.character.block = 6
+            else:
+                server.character.hp -= 1
+                server.character.powerOverwhelming = 2.0
+                server.character.check_hp()
         pass
 
     def draw(slime):
@@ -136,8 +156,7 @@ class ExpelState:
 
 class DeadState:
     def enter(slime, event):
-        # from main_state import cur_stage
-        # cur_stage.mobnum -= 1
+        server.dungeon.mobnum -= 1
         slime.animationX = 0
         slime.animationY = 0
         game_world.change_layer(slime, 1, 0)
@@ -176,6 +195,7 @@ class slime:
         self.dead = False
         self.expelCount = False
         self.expelnum = 0
+        slime.attacked = False
         self.i = 0.2
 
         if slime.die == None:

@@ -1,4 +1,6 @@
 from pico2d import *
+
+import Character
 import game_framework
 import game_world
 import server
@@ -72,6 +74,7 @@ class MoveState:
 class AttackState:
     def enter(golemsoldier, event):
         golemsoldier.animationX = 0
+        golemsoldier.attacked = False
         pass
 
     def exit(golemsoldier, event):
@@ -83,11 +86,20 @@ class AttackState:
         if golemsoldier.animationX > 13:
             golemsoldier.add_event(TURN_TO_MOVESTATE)
 
-        if golemsoldier.animationX > 7 and \
-                Check_Collide.check_collide(golemsoldier, server.character) and server.character.powerOverwhelming < 0:
-            server.character.hp -= 1
-            server.character.powerOverwhelming = 2.0
-            server.character.check_hp()
+        if 7 < golemsoldier.animationX < 10 and \
+                Check_Collide.check_attack(golemsoldier, server.character) and server.character.powerOverwhelming < 0:
+            if server.character.check_defense(golemsoldier):
+                if golemsoldier.attacked:
+                    pass
+                else:
+                    golemsoldier.attacked = True
+                    server.character.cur_state = Character.DefenceState
+                    server.character.animation = 0
+                    server.character.block = 6
+            else:
+                server.character.hp -= 1
+                server.character.powerOverwhelming = 2.0
+                server.character.check_hp()
         pass
 
     def draw(golemsoldier):
@@ -98,8 +110,7 @@ class AttackState:
 
 class DeadState:
     def enter(golemsoldier, event):
-        # from main_state import cur_stage
-        # cur_stage.mobnum -= 1
+        server.dungeon.mobnum -= 1
         golemsoldier.animationX = 0
         game_world.change_layer(golemsoldier, 1, 0)
         pass
@@ -131,6 +142,7 @@ class golemsoldier:
         self.event_que = []
         self.cur_state = MoveState
         self.hp = 1
+        self.attacked = False
         self.dead = False
         self.delay = 0
         self.i = 0.2

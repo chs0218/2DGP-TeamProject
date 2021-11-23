@@ -4,10 +4,7 @@ import Check_Collide
 from pico2d import *
 
 W_UP, W_DOWN, S_UP, S_DOWN, A_UP, A_DOWN, D_UP, D_DOWN, \
-J_DOWN, K_UP, K_DOWN, SPACE_DOWN, UPDATE_STATE, TURN_TO_DEADSTATE = range(14)
-
-event_name = ['W_UP', 'W_DOWN', 'S_UP', 'S_DOWN', 'A_UP', 'A_DOWN', 'D_UP', 'D_DOWN',
-              'J_DOWN', 'K_UP', 'K_DOWN', 'SPACE_DOWN', 'UPDATE_STATE', 'TURN_TO_DEADSTATE']
+J_DOWN, K_UP, K_DOWN, SPACE_DOWN, UPDATE_STATE = range(13)
 
 PIXEL_PER_METER = (100.0 / 1.8)
 RUN_SPEED_KMPH = 20.0
@@ -76,9 +73,11 @@ class MoveState:
 
 class AvoidState:
     def enter(Character, event):
+        Character.powerOverwhelming = 99.9
         pass
 
     def exit(Character, event):
+        Character.powerOverwhelming = 0
         pass
 
     def do(Character):
@@ -134,14 +133,16 @@ class AttackState:
             Character.animation %= 18
 
         if 3 < Character.animation < 4 or 7 < Character.animation < 8 or 11 < Character.animation < 12:
-            if Check_Collide.check_collide(Character, server.slime):
-                server.slime.hp -= 1
-                server.slime.check_hp()
-                pass
-            if Check_Collide.check_collide(Character, server.golemsoldier):
-                server.golemsoldier.hp -= 1
-                server.golemsoldier.check_hp()
-                pass
+            for slime in server.slime:
+                if Check_Collide.check_attack(Character, slime):
+                    slime.hp -= 1
+                    slime.check_hp()
+                    pass
+            for golemsoldier in server.golemsoldier:
+                if Check_Collide.check_attack(Character, golemsoldier):
+                    golemsoldier.hp -= 1
+                    golemsoldier.check_hp()
+                    pass
             pass
         elif 1 < Character.animation < 2:
             Character.move(ATTACK_SPEED_PPS)
@@ -168,11 +169,17 @@ class DefenceState:
         pass
 
     def exit(Chracter, event):
+        Character.block = 1
         pass
 
     def do(Character):
+        if Character.block != 1:
+            Character.move(-RUN_SPEED_PPS)
         Character.animation = (Character.animation + game_framework.FRAMES_PER_TIME
-                               * game_framework.frame_time) % Character.block
+                               * game_framework.frame_time)
+        if Character.animation > 6:
+            Character.block = 1
+        Character.animation %= Character.block
         pass
 
     def draw(Character):
@@ -184,6 +191,7 @@ class DefenceState:
 
 class DefenceWalkState:
     def enter(Character, event):
+        Character.block = 1
         pass
 
     def exit(Chracter, event):
@@ -260,6 +268,7 @@ class Character:
             self.powerOverwhelming -= game_framework.frame_time
         self.cur_state.do(self)
         if len(self.event_que) > 0 and self.cur_state != DeadState:
+            # server.slime.countexpel()
             event = self.event_que.pop()
             self.updateKeyBoardDic(event)
             self.pre_state = self.cur_state
@@ -347,6 +356,23 @@ class Character:
         elif self.dir == 3:
             self.x += speed * game_framework.frame_time
             self.x = clamp(165, self.x, get_canvas_width() - 165)
+
+    def check_defense(self, Monster):
+        if self.cur_state == DefenceState or self.cur_state == DefenceWalkState:
+            if Monster.x <= self.x and Monster.y <= self.y:
+                if self.dir == 1 or self.dir == 2:
+                    return True
+            elif Monster.x <= self.x and Monster.y > self.y:
+                if self.dir == 0 or self.dir == 2:
+                    return True
+            elif Monster.x > self.x and Monster.y <= self.y:
+                if self.dir == 1 or self.dir == 3:
+                    return True
+            elif Monster.x > self.x and Monster.y > self.y:
+                if self.dir == 0 or self.dir == 3:
+                    return True
+        else:
+            return False
 
     def check_hp(self):
         if self.hp == 0:

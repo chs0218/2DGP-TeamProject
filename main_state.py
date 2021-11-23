@@ -3,14 +3,10 @@ import random
 
 import game_framework
 import game_world
-import title_state
 import server
 import Character
-import Slime
-import GolemSolider
-import Golemkamikaze
 
-from Dungeon import dungeon
+from Dungeon import Dungeon
 
 def handle_events():
     events = get_events()
@@ -20,7 +16,6 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
         else:
-            server.slime.countexpel()
             server.character.handle_event(event)
 
     pass
@@ -28,14 +23,14 @@ def handle_events():
 
 def enter():
     server.character = Character.Character()
-    server.slime = Slime.slime()
-    server.golemsoldier = GolemSolider.golemsoldier()
-    server.golemkamikaze = Golemkamikaze.golemkamikaze()
-    server.stage1 = dungeon(3)
-    game_world.add_object(server.stage1, 0)
-    game_world.add_object(server.slime, 1)
-    game_world.add_object(server.golemsoldier, 1)
-    game_world.add_object(server.golemkamikaze, 1)
+    # server.slime = Slime.slime()
+    # server.golemsoldier = GolemSolider.golemsoldier()
+    # server.golemkamikaze = Golemkamikaze.golemkamikaze()
+    server.dungeon = Dungeon()
+    game_world.add_object(server.dungeon, 0)
+    # game_world.add_object(server.slime, 1)
+    # game_world.add_object(server.golemsoldier, 1)
+    # game_world.add_object(server.golemkamikaze, 1)
     game_world.add_object(server.character, 2)
     pass
 

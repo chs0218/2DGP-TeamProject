@@ -1,4 +1,5 @@
 from pico2d import *
+import Character
 import game_framework
 import game_world
 import Check_Collide
@@ -36,6 +37,7 @@ class MoveState:
 
 class AttackState:
     def enter(golemkamikaze, event):
+        golemkamikaze.attacked = False
         golemkamikaze.animationX = 0
         golemkamikaze.animationY = 0
         pass
@@ -44,6 +46,10 @@ class AttackState:
         pass
 
     def do(golemkamikaze):
+        t = golemkamikaze.i / 20
+        golemkamikaze.x = (1 - t) * golemkamikaze.x + t * server.character.x
+        golemkamikaze.y = (1 - t) * golemkamikaze.y + t * server.character.y
+
         golemkamikaze.animationX = (golemkamikaze.animationX +
                                     game_framework.MONSTER_FRAMES_PER_TIME * game_framework.frame_time)
         if golemkamikaze.animationX > 10:
@@ -53,10 +59,19 @@ class AttackState:
                 golemkamikaze.add_event(TURN_TO_DEADSTATE)
 
         if golemkamikaze.animationY == 1 and \
-                Check_Collide.check_collide(golemkamikaze, server.character) and server.character.powerOverwhelming < 0:
-            server.character.hp -= 1
-            server.character.powerOverwhelming = 2.0
-            server.character.check_hp()
+                Check_Collide.check_attack(golemkamikaze, server.character) and server.character.powerOverwhelming < 0:
+            if server.character.check_defense(golemkamikaze):
+                if golemkamikaze.attacked:
+                    pass
+                else:
+                    golemkamikaze.attacked = True
+                    server.character.cur_state = Character.DefenceState
+                    server.character.animation = 0
+                    server.character.block = 6
+            else:
+                server.character.hp -= 1
+                server.character.powerOverwhelming = 2.0
+                server.character.check_hp()
         pass
 
     def draw(golemkamikaze):
@@ -109,8 +124,7 @@ class WakeState:
 
 class DeadState:
     def enter(golemkamikaze, event):
-        # from main_state import cur_stage
-        # cur_stage.mobnum -= 1
+        server.dungeon.mobnum -= 1
         golemkamikaze.animationX = 0
         golemkamikaze.animationY = 0
         game_world.change_layer(golemkamikaze, 1, 0)
@@ -143,6 +157,7 @@ class golemkamikaze:
         self.animationX = 0
         self.animationY = 0
         self.event_que = []
+        golemkamikaze.attacked = False
         self.cur_state = SleepState
         self.i = 0.2
         if golemkamikaze.die == None:
