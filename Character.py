@@ -238,7 +238,9 @@ class Character:
         self.Attack = load_image("player/player_attack.png")
         self.Shield = load_image("player/player_shield_defense.png")
         self.ShieldMove = load_image("player/player_shield_walk.png")
-        self.hp = 1
+        self.Hp = load_image("player/player_hp.png")
+        self.hitDamge = False
+        self.hp = 5
         self.powerOverwhelming = 2.0
         self.animation = 0
         self.dir = 0
@@ -336,6 +338,10 @@ class Character:
 
     def draw(self):
         self.cur_state.draw(self)
+        if self.hp > 0:
+            self.Hp.clip_draw(0, 100 * self.hp, 400, 100, 100, get_canvas_height() - 40, 200, 50)
+        else:
+            self.Hp.clip_draw(0, 0, 400, 100, 100, get_canvas_height() - 40, 200, 50)
         draw_rectangle(*self.get_bb())
 
     def handle_event(self, event):
