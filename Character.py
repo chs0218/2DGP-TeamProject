@@ -2,6 +2,7 @@ import game_framework
 import server
 import Check_Collide
 from pico2d import *
+import result_state
 
 W_UP, W_DOWN, S_UP, S_DOWN, A_UP, A_DOWN, D_UP, D_DOWN, \
 J_DOWN, K_UP, K_DOWN, SPACE_DOWN, UPDATE_STATE = range(13)
@@ -77,7 +78,7 @@ class AvoidState:
         pass
 
     def exit(Character, event):
-        Character.powerOverwhelming = 0
+        Character.powerOverwhelming = -1
         pass
 
     def do(Character):
@@ -168,7 +169,7 @@ class DefenceState:
     def enter(Character, event):
         pass
 
-    def exit(Chracter, event):
+    def exit(Character, event):
         Character.block = 1
         pass
 
@@ -194,7 +195,8 @@ class DefenceWalkState:
         Character.block = 1
         pass
 
-    def exit(Chracter, event):
+    def exit(Character, event):
+        Character.block = 1
         pass
 
     def do(Character):
@@ -217,6 +219,10 @@ class DeadState:
     def do(Character):
         if Character.animation < 10:
             Character.animation = (Character.animation + game_framework.FRAMES_PER_TIME * game_framework.frame_time)
+        else:
+            Character.timer += game_framework.frame_time
+            if Character.timer > 3.5:
+                game_framework.change_state(result_state)
         pass
 
     def draw(Character):
@@ -239,7 +245,7 @@ class Character:
         self.Shield = load_image("player/player_shield_defense.png")
         self.ShieldMove = load_image("player/player_shield_walk.png")
         self.Hp = load_image("player/player_hp.png")
-        self.hitDamge = False
+        self.timer = 0
         self.hp = 5
         self.powerOverwhelming = 2.0
         self.animation = 0

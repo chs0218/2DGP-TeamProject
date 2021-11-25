@@ -1,5 +1,4 @@
 from pico2d import *
-import random
 
 import game_framework
 import game_world
@@ -23,14 +22,8 @@ def handle_events():
 
 def enter():
     server.character = Character.Character()
-    # server.slime = Slime.slime()
-    # server.golemsoldier = GolemSolider.golemsoldier()
-    # server.golemkamikaze = Golemkamikaze.golemkamikaze()
     server.dungeon = Dungeon()
     game_world.add_object(server.dungeon, 0)
-    # game_world.add_object(server.slime, 1)
-    # game_world.add_object(server.golemsoldier, 1)
-    # game_world.add_object(server.golemkamikaze, 1)
     game_world.add_object(server.character, 2)
     pass
 
