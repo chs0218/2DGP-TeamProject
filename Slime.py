@@ -188,10 +188,11 @@ class slime:
         self.y = random.randint(200, get_canvas_height() - 100)
         self.animationX = 0
         self.animationY = 0
+        self.dir = random.random()*2*math.pi
         self.event_que = []
         self.cur_state = MoveState
         self.hp = 1
-        self.delay = 0
+        self.wait_timer = 2.0
         self.dead = False
         self.expelCount = False
         self.expelnum = 0
