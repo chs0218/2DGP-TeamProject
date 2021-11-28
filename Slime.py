@@ -6,6 +6,7 @@ import Check_Collide
 import game_framework
 import game_world
 import random
+import BehaviorTree
 
 TURN_TO_MOVESTATE, TURN_TO_ATTACKSTATE, TURN_TO_ABSORBSTATE, TURN_TO_EXPELSTATE, TURN_TO_DEADSTATE = range(5)
 
