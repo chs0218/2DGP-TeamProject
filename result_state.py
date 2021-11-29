@@ -2,6 +2,7 @@ import game_framework
 import title_state
 from pico2d import *
 
+image = None
 name = "ResultState"
 
 def enter():
