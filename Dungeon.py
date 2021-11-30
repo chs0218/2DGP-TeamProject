@@ -6,6 +6,7 @@ import Golemkamikaze
 import game_world
 import Check_Collide
 import game_framework
+import result_state
 import math
 
 import server
@@ -93,6 +94,7 @@ class Stage3:
     def do(Dungeon):
         pass
 
+
 class Stage4:
     def enter(Dungeon):
         Dungeon.mobnum = 15
@@ -106,6 +108,25 @@ class Stage4:
         game_world.add_objects(server.slime, 1)
         game_world.add_objects(server.golemsoldier, 1)
         game_world.add_objects(server.golemkamikaze, 1)
+        pass
+
+    def exit(Dungeon):
+        pass
+
+    def draw(Dungeon):
+        Dungeon.BK.draw(get_canvas_width() // 2, get_canvas_height() // 2)
+        Dungeon.BK2.draw(get_canvas_width() // 2, get_canvas_height() // 2)
+        Dungeon.Door.clip_draw(200 * int(Dungeon.DoorAnimation), 0, 200, 200,
+                               get_canvas_width() // 2, get_canvas_height() - 60)
+        Dungeon.Door.clip_composite_draw(int(Dungeon.DoorAnimation) * 200, 0, 200, 200,
+                                         math.radians(180), 'h', get_canvas_width() // 2, 60, 200, 200)
+        draw_rectangle(*Dungeon.get_bb())
+
+    def do(Dungeon):
+        pass
+
+class WaitResult:
+    def enter(Dungeon):
         pass
 
     def exit(Dungeon):
@@ -123,21 +144,23 @@ class Stage4:
     def draw(Dungeon):
         Dungeon.BK.draw(get_canvas_width() // 2, get_canvas_height() // 2)
         Dungeon.BK2.draw(get_canvas_width() // 2, get_canvas_height() // 2)
-        Dungeon.Door.clip_draw(200 * int(Dungeon.DoorAnimation), 0, 200, 200,
-                               get_canvas_width() // 2, get_canvas_height() - 60)
         Dungeon.Door.clip_composite_draw(int(Dungeon.DoorAnimation) * 200, 0, 200, 200,
                                          math.radians(180), 'h', get_canvas_width() // 2, 60, 200, 200)
         draw_rectangle(*Dungeon.get_bb())
 
     def do(Dungeon):
+        Dungeon.delay -= game_framework.frame_time
+        if Dungeon.delay < 0:
+            game_framework.change_state(result_state)
+        print(Dungeon.delay)
         pass
-
 
 next_stage = {
     Stage1: Stage2,
     Stage2: Stage3,
     Stage3: Stage4,
-    Stage4: Stage4
+    Stage4: WaitResult,
+    WaitResult: WaitResult
 }
 
 
@@ -153,8 +176,9 @@ class Dungeon:
         self.DoorAnimation = 0
         self.mobnum = 0
         self.isClear = False
-        self.cur_stage = Stage1
-        Stage1.enter(self)
+        self.delay = 2
+        self.cur_stage = Stage4
+        Stage4.enter(self)
 
     def get_bb(self):
         return get_canvas_width() // 2 - 25, get_canvas_height() - 115, \
@@ -164,6 +188,8 @@ class Dungeon:
         if self.mobnum == 0:
             self.isClear = True
             self.mobnum -= 1
+            if self.cur_stage == Stage4:
+                self.ChangeStage()
 
         if self.isClear and self.DoorAnimation < 11:
             self.DoorAnimation = (self.DoorAnimation +
@@ -175,6 +201,7 @@ class Dungeon:
         elif self.DoorAnimation < 7:
             self.DoorAnimation = (self.DoorAnimation + game_framework.DOOR_FRAMES_PER_TIME
                                   * game_framework.frame_time)
+        self.cur_stage.do(self)
         pass
 
     def ChangeStage(self):

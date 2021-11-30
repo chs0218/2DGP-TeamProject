@@ -6,6 +6,8 @@ image = None
 name = "ResultState"
 
 def enter():
+    global image
+    image = load_image("result/result.png")
     pass
 
 
@@ -26,6 +28,7 @@ def handle_events():
 
 def draw():
     clear_canvas()
+    image.draw(get_canvas_width()//2, get_canvas_height()//2)
     update_canvas()
     pass
 
