@@ -111,6 +111,7 @@ class AttackState:
 class DeadState:
     def enter(golemsoldier, event):
         server.dungeon.mobnum -= 1
+        server.golemsoldierNum += 1
         golemsoldier.animationX = 0
         game_world.change_layer(golemsoldier, 1, 0)
         pass

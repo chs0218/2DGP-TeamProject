@@ -125,6 +125,7 @@ class WakeState:
 class DeadState:
     def enter(golemkamikaze, event):
         server.dungeon.mobnum -= 1
+        server.golemkamikazeNum += 1
         golemkamikaze.animationX = 0
         golemkamikaze.animationY = 0
         game_world.change_layer(golemkamikaze, 1, 0)

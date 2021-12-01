@@ -4,3 +4,6 @@ slime = []
 golemsoldier = []
 golemkamikaze = []
 dungeon = None
+slimeNum = 0
+golemsoldierNum = 0
+golemkamikazeNum = 0

@@ -158,6 +158,7 @@ class ExpelState:
 class DeadState:
     def enter(slime, event):
         server.dungeon.mobnum -= 1
+        server.slimeNum += 1
         slime.animationX = 0
         slime.animationY = 0
         game_world.change_layer(slime, 1, 0)

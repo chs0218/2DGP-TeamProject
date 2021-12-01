@@ -177,8 +177,8 @@ class Dungeon:
         self.mobnum = 0
         self.isClear = False
         self.delay = 2
-        self.cur_stage = Stage4
-        Stage4.enter(self)
+        self.cur_stage = Stage1
+        self.cur_stage.enter(self)
 
     def get_bb(self):
         return get_canvas_width() // 2 - 25, get_canvas_height() - 115, \
