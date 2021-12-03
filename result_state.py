@@ -7,6 +7,7 @@ from pico2d import *
 image = None
 bkimage = None
 bkimage2 = None
+font = None
 name = "ResultState"
 
 
@@ -61,7 +62,7 @@ class golemkamikaze:
 
 
 def enter():
-    global image, bkimage, bkimage2
+    global image, bkimage, bkimage2, font, score
 
     globalX = get_canvas_width() // 2 - 100
     globalY = get_canvas_height() // 2 + 45
@@ -69,6 +70,7 @@ def enter():
     image = load_image("result/result.png")
     bkimage = load_image("result/bkground.png")
     bkimage2 = load_image("result/bkground2.png")
+    font = load_font('Youth.ttf', 20)
 
     Slime = [slime(globalX + (_ * 10), globalY) for _ in range(server.slimeNum)]
     Golemsolider = [golemsoldier(globalX + (_ * 10), globalY - 50) for _ in range(server.golemsoldierNum)]
@@ -76,10 +78,13 @@ def enter():
     game_world.add_objects(Slime, 1)
     game_world.add_objects(Golemsolider, 1)
     game_world.add_objects(Golemkamikaze, 1)
+
+    server.score = 500 * server.slimeNum + 1000 * server.golemsoldierNum + 800 * server.golemkamikazeNum
     pass
 
 
 def exit():
+    game_world.clear()
     pass
 
 
@@ -101,6 +106,10 @@ def draw():
     image.draw(get_canvas_width() // 2, get_canvas_height() // 2)
     for game_object in game_world.all_objects():
         game_object.draw()
+    font.draw(170, 600, '쓰러트린 슬라임 수: %d' % server.slimeNum, (0, 0, 0))
+    font.draw(170, 570, '쓰러트린 골렘전사 수: %d' % server.golemsoldierNum, (0, 0, 0))
+    font.draw(170, 540, '쓰러트린 자폭로봇 수: %d' % server.golemkamikazeNum, (0, 0, 0))
+    font.draw(170, 510, '점수: %d' % server.score, (0, 0, 0))
     update_canvas()
     handle_events()
     pass

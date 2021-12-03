@@ -70,7 +70,7 @@ class AttackState:
                     server.character.block = 6
             else:
                 server.character.hp -= 1
-                server.character.powerOverwhelming = 2.0
+                server.character.powerOverwhelming = 1.0
                 server.character.check_hp()
         pass
 
@@ -91,7 +91,8 @@ class SleepState:
         pass
 
     def do(golemkamikaze):
-        if (golemkamikaze.x - server.character.x) ** 2 + (golemkamikaze.y - server.character.y) ** 2 < 6000:
+        golemkamikaze.delay = golemkamikaze.delay - game_framework.frame_time
+        if golemkamikaze.delay < 0:
             golemkamikaze.add_event(TURN_TO_WAKESTATE)
         pass
 
@@ -157,6 +158,7 @@ class golemkamikaze:
         self.y = random.randint(200, get_canvas_height() - 100)
         self.animationX = 0
         self.animationY = 0
+        self.delay = 0.5
         self.event_que = []
         golemkamikaze.attacked = False
         self.cur_state = SleepState

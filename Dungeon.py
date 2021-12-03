@@ -116,8 +116,6 @@ class Stage4:
     def draw(Dungeon):
         Dungeon.BK.draw(get_canvas_width() // 2, get_canvas_height() // 2)
         Dungeon.BK2.draw(get_canvas_width() // 2, get_canvas_height() // 2)
-        Dungeon.Door.clip_draw(200 * int(Dungeon.DoorAnimation), 0, 200, 200,
-                               get_canvas_width() // 2, get_canvas_height() - 60)
         Dungeon.Door.clip_composite_draw(int(Dungeon.DoorAnimation) * 200, 0, 200, 200,
                                          math.radians(180), 'h', get_canvas_width() // 2, 60, 200, 200)
         draw_rectangle(*Dungeon.get_bb())

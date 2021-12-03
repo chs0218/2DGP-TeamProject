@@ -73,7 +73,7 @@ class AttackState:
                     server.character.block = 6
             else:
                 server.character.hp -= 1
-                server.character.powerOverwhelming = 2.0
+                server.character.powerOverwhelming = 1.0
                 server.character.check_hp()
         elif slime.animationY == 0 and slime.animationX < 3 and \
                 Check_Collide.check_attack(slime, server.character) and server.character.powerOverwhelming < 0:
@@ -87,7 +87,7 @@ class AttackState:
                     server.character.block = 6
             else:
                 server.character.hp -= 1
-                server.character.powerOverwhelming = 2.0
+                server.character.powerOverwhelming = 1.0
                 server.character.check_hp()
         pass
 

@@ -1,9 +1,10 @@
-difficulty = None
+difficulty = 0
 character = None
 slime = []
 golemsoldier = []
 golemkamikaze = []
 dungeon = None
 slimeNum = 0
+score = 0
 golemsoldierNum = 0
 golemkamikazeNum = 0

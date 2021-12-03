@@ -247,7 +247,7 @@ class Character:
         self.Hp = load_image("player/player_hp.png")
         self.timer = 0
         self.hp = 5
-        self.powerOverwhelming = 2.0
+        self.powerOverwhelming = 1.0
         self.animation = 0
         self.dir = 0
         self.event_que = []

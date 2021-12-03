@@ -1,6 +1,7 @@
 import game_framework
 import pico2d
 import start_state
+import result_state
 
 Width, Height = 1276, 720
 
