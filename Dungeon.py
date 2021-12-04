@@ -13,10 +13,10 @@ import server
 
 class Stage1:
     def enter(Dungeon):
-        Dungeon.mobnum = 10
+        Dungeon.mobnum = (server.difficulty + 1) * 5
         Dungeon.isClear = False
         Dungeon.DoorAnimation = 0
-        server.slime = [Slime.slime() for _ in range(10)]
+        server.slime = [Slime.slime() for _ in range(Dungeon.mobnum)]
         game_world.add_objects(server.slime, 1)
         pass
 
@@ -38,12 +38,12 @@ class Stage1:
 
 class Stage2:
     def enter(Dungeon):
-        Dungeon.mobnum = 10
+        Dungeon.mobnum = (server.difficulty + 1) * 5
         Dungeon.isClear = False
         Dungeon.DoorAnimation = 0
         server.character.x = 630
         server.character.y = 120
-        server.golemsoldier = [GolemSolider.golemsoldier() for _ in range(10)]
+        server.golemsoldier = [GolemSolider.golemsoldier() for _ in range(Dungeon.mobnum)]
         game_world.add_objects(server.golemsoldier, 1)
         pass
 
@@ -67,12 +67,12 @@ class Stage2:
 
 class Stage3:
     def enter(Dungeon):
-        Dungeon.mobnum = 5
+        Dungeon.mobnum = (server.difficulty + 1) * 5
         Dungeon.isClear = False
         Dungeon.DoorAnimation = 0
         server.character.x = 630
         server.character.y = 120
-        server.golemkamikaze = [Golemkamikaze.golemkamikaze() for _ in range(5)]
+        server.golemkamikaze = [Golemkamikaze.golemkamikaze() for _ in range(Dungeon.mobnum)]
         game_world.add_objects(server.golemkamikaze, 1)
         pass
 
@@ -97,14 +97,14 @@ class Stage3:
 
 class Stage4:
     def enter(Dungeon):
-        Dungeon.mobnum = 15
+        Dungeon.mobnum = (server.difficulty + 1) * 15
         Dungeon.isClear = False
         Dungeon.DoorAnimation = 0
         server.character.x = 630
         server.character.y = 120
-        server.slime = [Slime.slime() for _ in range(5)]
-        server.golemsoldier = [GolemSolider.golemsoldier() for _ in range(5)]
-        server.golemkamikaze = [Golemkamikaze.golemkamikaze() for _ in range(5)]
+        server.slime = [Slime.slime() for _ in range(Dungeon.mobnum // 3)]
+        server.golemsoldier = [GolemSolider.golemsoldier() for _ in range(Dungeon.mobnum // 3)]
+        server.golemkamikaze = [Golemkamikaze.golemkamikaze() for _ in range(Dungeon.mobnum // 3)]
         game_world.add_objects(server.slime, 1)
         game_world.add_objects(server.golemsoldier, 1)
         game_world.add_objects(server.golemkamikaze, 1)
