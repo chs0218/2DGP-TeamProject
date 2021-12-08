@@ -188,6 +188,7 @@ class slime:
     attack = None
     absorbed = None
     expel = None
+    attackSound = None
 
     def __init__(self):
         self.x = random.randint(200, get_canvas_width() - 200)
@@ -199,8 +200,7 @@ class slime:
         self.cur_state = MoveState
         self.hp = 1
         self.wait_timer = 2.0
-        self.attackSound = load_wav("bgm/slime_attack.wav")
-        self.attackSound.set_volume(32)
+
         self.dead = False
         self.expelCount = False
         self.expelnum = 0
@@ -213,6 +213,8 @@ class slime:
             slime.attack = load_image("monster/slime/slime_hit_attack.png")
             slime.absorbed = load_image("monster/slime/slimeabsorbed_attack.png")
             slime.expel = load_image("monster/slime/slime_expel.png")
+            slime.attackSound = load_wav("bgm/slime_attack.wav")
+            slime.attackSound.set_volume(64)
         pass
 
     def get_bb(self):
