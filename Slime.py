@@ -56,11 +56,13 @@ class AttackState:
         if slime.animationX > 8:
             if slime.animationY == 1:
                 slime.animationX = 0
+                slime.attackSound.play()
                 slime.animationY -= 1
             else:
                 slime.animationY = 1
                 slime.add_event(TURN_TO_MOVESTATE)
                 slime.delay = 50
+
         if slime.animationY == 1 and slime.animationX > 6 and \
                 Check_Collide.check_attack(slime, server.character) and server.character.powerOverwhelming < 0:
             if server.character.check_defense(slime):
@@ -93,7 +95,6 @@ class AttackState:
 
     def draw(slime):
         slime.attack.clip_draw(200 * int(slime.animationX), 200 * slime.animationY, 200, 200, slime.x, slime.y)
-        draw_rectangle(*slime.get_attack_range())
         pass
 
 
@@ -162,7 +163,9 @@ class DeadState:
         slime.animationX = 0
         slime.animationY = 0
         game_world.change_layer(slime, 1, 0)
-        game_world.add_object(item.Item(slime.x, slime.y, 0), 0)
+        seed = random.randint(0, 100)
+        if seed < 55:
+            game_world.add_object(item.Item(slime.x, slime.y, item.Potion), 0)
         pass
 
     def exit(slime, event):
@@ -196,6 +199,8 @@ class slime:
         self.cur_state = MoveState
         self.hp = 1
         self.wait_timer = 2.0
+        self.attackSound = load_wav("bgm/slime_attack.wav")
+        self.attackSound.set_volume(32)
         self.dead = False
         self.expelCount = False
         self.expelnum = 0
@@ -218,7 +223,6 @@ class slime:
 
     def draw(self):
         self.cur_state.draw(self)
-        draw_rectangle(*self.get_bb())
 
     def add_event(self, event):
         self.event_que.insert(0, event)

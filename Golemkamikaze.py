@@ -5,6 +5,7 @@ import game_world
 import Check_Collide
 import server
 import random
+import item
 
 TURN_TO_WAKESTATE, TURN_TO_MOVESTATE, TURN_TO_ATTACKSTATE, TURN_TO_DEADSTATE = range(4)
 
@@ -54,6 +55,7 @@ class AttackState:
                                     game_framework.MONSTER_FRAMES_PER_TIME * game_framework.frame_time)
         if golemkamikaze.animationX > 10:
             if golemkamikaze.animationY == 0:
+                golemkamikaze.explosion.play()
                 golemkamikaze.animationY += 1
             else:
                 golemkamikaze.add_event(TURN_TO_DEADSTATE)
@@ -77,7 +79,6 @@ class AttackState:
     def draw(golemkamikaze):
         golemkamikaze.attack.clip_draw(300 * int(golemkamikaze.animationX), 300 * golemkamikaze.animationY,
                                        300, 300, golemkamikaze.x, golemkamikaze.y)
-        draw_rectangle(*golemkamikaze.get_attack_range())
         pass
 
 
@@ -130,6 +131,17 @@ class DeadState:
         golemkamikaze.animationX = 0
         golemkamikaze.animationY = 0
         game_world.change_layer(golemkamikaze, 1, 0)
+        seed = random.randint(0, 100)
+        if seed < 16:
+            game_world.add_object(item.Item(golemkamikaze.x, golemkamikaze.y, item.Crystal), 0)
+        elif seed < 32:
+            game_world.add_object(item.Item(golemkamikaze.x, golemkamikaze.y, item.Core), 0)
+        elif seed < 48:
+            game_world.add_object(item.Item(golemkamikaze.x, golemkamikaze.y, item.Stone), 0)
+        elif seed < 64:
+            game_world.add_object(item.Item(golemkamikaze.x, golemkamikaze.y, item.Steel), 0)
+        elif seed < 80:
+            game_world.add_object(item.Item(golemkamikaze.x, golemkamikaze.y, item.Plastic), 0)
         pass
 
     def exit(golemkamikaze, event):
@@ -163,6 +175,9 @@ class golemkamikaze:
         golemkamikaze.attacked = False
         self.cur_state = SleepState
         self.i = 0.2
+        self.explosion = load_wav("bgm/explosion.wav")
+        self.explosion.set_volume(16)
+
         if golemkamikaze.die == None:
             golemkamikaze.slept = load_image("monster/golemkamikaze/golemkamikaze_idleslept.png")
             golemkamikaze.wake = load_image("monster/golemkamikaze/golemkamikaze_wake.png")
@@ -178,7 +193,6 @@ class golemkamikaze:
 
     def draw(self):
         self.cur_state.draw(self)
-        draw_rectangle(*self.get_bb())
 
     def add_event(self, event):
         self.event_que.insert(0, event)

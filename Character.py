@@ -74,6 +74,8 @@ class MoveState:
 
 class AvoidState:
     def enter(Character, event):
+        if Character.pre_state != AvoidState:
+            Character.rollSound.play()
         Character.powerOverwhelming = 99.9
         pass
 
@@ -99,6 +101,12 @@ class AvoidState:
 
 class AttackState:
     def enter(Character, event):
+        if Character.combo == 1:
+            Character.swordSound.play()
+        elif Character.combo == 2:
+            Character.swordSound.play()
+        elif Character.combo == 3:
+            Character.swordSound.play()
         pass
 
     def exit(Character, event):
@@ -160,8 +168,6 @@ class AttackState:
         else:
             Character.Attack.clip_draw(400 * int(Character.animation), 400 * Character.dir,
                                        400, 400, Character.x, Character.y)
-
-        draw_rectangle(*Character.get_attack_range())
         pass
 
 
@@ -245,6 +251,10 @@ class Character:
         self.Shield = load_image("player/player_shield_defense.png")
         self.ShieldMove = load_image("player/player_shield_walk.png")
         self.Hp = load_image("player/player_hp.png")
+        self.swordSound = load_wav("bgm/sword_swing.wav")
+        self.swordSound.set_volume(16)
+        self.rollSound = load_wav("bgm/rolling.wav")
+        self.rollSound.set_volume(16)
         self.timer = 0
         self.hp = 5
         self.powerOverwhelming = 1.0
@@ -348,7 +358,6 @@ class Character:
             self.Hp.clip_draw(0, 100 * self.hp, 400, 100, 100, get_canvas_height() - 40, 200, 50)
         else:
             self.Hp.clip_draw(0, 0, 400, 100, 100, get_canvas_height() - 40, 200, 50)
-        draw_rectangle(*self.get_bb())
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:

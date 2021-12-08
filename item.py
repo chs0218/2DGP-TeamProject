@@ -1,7 +1,12 @@
 from pico2d import *
 
+import game_framework
+import game_world
+import server
+import Check_Collide
+
 Potion, Crystal, Core, Plastic, Steel, Stone = range(6)
-size = 45
+size = 50
 
 class Item:
     crystal = None
@@ -22,10 +27,23 @@ class Item:
         self.state = state
         self.x = x
         self.y = y
+        self.i = 0.4
+        self.delay = 1.0
         pass
 
+    def get_bb(self):
+        return self.x - size/2, self.y - size/2, self.x + size/2, self.y + size/2
+
     def update(self):
-        pass
+        if self.delay < 0:
+            t = self.i / 100
+            self.x = (1 - t) * self.x + t * server.character.x
+            self.y = (1 - t) * self.y + t * server.character.y
+            if Check_Collide.check_clear(self, server.character):
+                server.inventory.getItem(self.state)
+                game_world.remove_object(self)
+        else:
+            self.delay -= game_framework.frame_time
 
     def draw(self):
         if self.state == Crystal:

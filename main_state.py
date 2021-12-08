@@ -25,15 +25,16 @@ def handle_events():
 
 
 def enter():
-    server.slimeNum = 0
-    server.golemkamikaze = 0
+    server.golemkamikazeNum = 0
     server.golemsoldierNum = 0
+    server.slimeNum = 0
     server.inventory = inventory.Inventory()
     server.character = Character.Character()
     server.dungeon = Dungeon()
+
     game_world.add_object(server.dungeon, 0)
     game_world.add_object(server.character, 2)
-    pass
+
 
 
 def exit():

@@ -79,12 +79,13 @@ def enter():
     game_world.add_objects(Golemsolider, 1)
     game_world.add_objects(Golemkamikaze, 1)
 
-    server.score = 500 * server.slimeNum + 1000 * server.golemsoldierNum + 800 * server.golemkamikazeNum
+    server.score = 500 * server.slimeNum + 1000 * server.golemsoldierNum + 800 * server.golemkamikazeNum \
+                   + server.inventory.numStone * 50 + server.inventory.numSteel * 80 + server.inventory.numCore * 100 \
+                   + server.inventory.numPlastic * 30 + server.inventory.numPotion * 210 + server.inventory.numCrystal * 300
     pass
 
 
 def exit():
-
     game_world.clear()
     pass
 
@@ -105,12 +106,20 @@ def draw():
     bkimage.draw(get_canvas_width() // 2, get_canvas_height() // 2)
     bkimage2.draw(get_canvas_width() // 2, get_canvas_height() // 2)
     image.draw(get_canvas_width() // 2, get_canvas_height() // 2)
+    server.inventory.draw(630)
     for game_object in game_world.all_objects():
         game_object.draw()
+    # Potion, Crystal, Core, Plastic, Steel, Stone
     font.draw(170, 600, '쓰러트린 슬라임 수: %d' % server.slimeNum, (0, 0, 0))
     font.draw(170, 570, '쓰러트린 골렘전사 수: %d' % server.golemsoldierNum, (0, 0, 0))
     font.draw(170, 540, '쓰러트린 자폭로봇 수: %d' % server.golemkamikazeNum, (0, 0, 0))
-    font.draw(170, 510, '점수: %d' % server.score, (0, 0, 0))
+    font.draw(170, 510, '획득한 포션의 수: %d' % server.inventory.numPotion, (0, 0, 0))
+    font.draw(170, 470, '획득한 크리스탈의 수: %d' % server.inventory.numCrystal, (0, 0, 0))
+    font.draw(170, 430, '획득한 코어의 수: %d' % server.inventory.numCore, (0, 0, 0))
+    font.draw(170, 400, '획득한 플라스틱의 수: %d' % server.inventory.numPlastic, (0, 0, 0))
+    font.draw(170, 370, '획득한 강철의 수: %d' % server.inventory.numSteel, (0, 0, 0))
+    font.draw(170, 340, '획득한 돌의 수: %d' % server.inventory.numStone, (0, 0, 0))
+    font.draw(170, 310, '점수: %d' % server.score, (0, 0, 0))
     update_canvas()
     handle_events()
     pass

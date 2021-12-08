@@ -17,6 +17,8 @@ def handle_events():
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_i:
             game_framework.pop_state()
+        else:
+            server.character.handle_event(event)
     pass
 
 

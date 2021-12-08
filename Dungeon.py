@@ -31,7 +31,6 @@ class Stage1:
         Dungeon.BK2.draw(get_canvas_width() // 2, get_canvas_height() // 2)
         Dungeon.Door.clip_draw(200 * int(Dungeon.DoorAnimation), 0, 200, 200,
                                get_canvas_width() // 2, get_canvas_height() - 60)
-        draw_rectangle(*Dungeon.get_bb())
 
     def do(Dungeon):
         pass
@@ -60,7 +59,6 @@ class Stage2:
                                get_canvas_width() // 2, get_canvas_height() - 60)
         Dungeon.Door.clip_composite_draw(int(Dungeon.DoorAnimation) * 200, 0, 200, 200,
                                          math.radians(180), 'h', get_canvas_width() // 2, 60, 200, 200)
-        draw_rectangle(*Dungeon.get_bb())
 
     def do(Dungeon):
         pass
@@ -89,7 +87,6 @@ class Stage3:
                                get_canvas_width() // 2, get_canvas_height() - 60)
         Dungeon.Door.clip_composite_draw(int(Dungeon.DoorAnimation) * 200, 0, 200, 200,
                                          math.radians(180), 'h', get_canvas_width() // 2, 60, 200, 200)
-        draw_rectangle(*Dungeon.get_bb())
 
     def do(Dungeon):
         pass
@@ -118,7 +115,6 @@ class Stage4:
         Dungeon.BK2.draw(get_canvas_width() // 2, get_canvas_height() // 2)
         Dungeon.Door.clip_composite_draw(int(Dungeon.DoorAnimation) * 200, 0, 200, 200,
                                          math.radians(180), 'h', get_canvas_width() // 2, 60, 200, 200)
-        draw_rectangle(*Dungeon.get_bb())
 
     def do(Dungeon):
         pass
@@ -144,7 +140,6 @@ class WaitResult:
         Dungeon.BK2.draw(get_canvas_width() // 2, get_canvas_height() // 2)
         Dungeon.Door.clip_composite_draw(int(Dungeon.DoorAnimation) * 200, 0, 200, 200,
                                          math.radians(180), 'h', get_canvas_width() // 2, 60, 200, 200)
-        draw_rectangle(*Dungeon.get_bb())
 
     def do(Dungeon):
         Dungeon.delay -= game_framework.frame_time
@@ -175,6 +170,9 @@ class Dungeon:
         self.isClear = False
         self.delay = 2
         self.cur_stage = Stage1
+        self.bgm = load_music("bgm/bgm.mp3")
+        self.bgm.set_volume(15)
+        self.bgm.repeat_play()
         self.cur_stage.enter(self)
 
     def get_bb(self):
