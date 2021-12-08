@@ -150,7 +150,6 @@ class WaitResult:
         Dungeon.delay -= game_framework.frame_time
         if Dungeon.delay < 0:
             game_framework.change_state(result_state)
-        print(Dungeon.delay)
         pass
 
 next_stage = {

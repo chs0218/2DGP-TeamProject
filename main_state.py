@@ -4,6 +4,8 @@ import game_framework
 import game_world
 import server
 import Character
+import inventory_state
+import inventory
 
 from Dungeon import Dungeon
 
@@ -14,6 +16,8 @@ def handle_events():
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_i:
+            game_framework.push_state(inventory_state)
         else:
             server.character.handle_event(event)
 
@@ -24,6 +28,7 @@ def enter():
     server.slimeNum = 0
     server.golemkamikaze = 0
     server.golemsoldierNum = 0
+    server.inventory = inventory.Inventory()
     server.character = Character.Character()
     server.dungeon = Dungeon()
     game_world.add_object(server.dungeon, 0)
@@ -33,6 +38,14 @@ def enter():
 
 def exit():
     game_world.clear()
+    pass
+
+
+def resume():
+    pass
+
+
+def pause():
     pass
 
 
