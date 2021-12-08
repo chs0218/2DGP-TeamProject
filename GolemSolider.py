@@ -150,7 +150,7 @@ class golemsoldier:
     die = None
     walk = None
     attack = None
-
+    attackSound = None
     def __init__(self):
         self.x = random.randint(200, get_canvas_width() - 200)
         self.y = random.randint(200, get_canvas_height() - 100)
@@ -159,8 +159,7 @@ class golemsoldier:
         self.event_que = []
         self.cur_state = MoveState
         self.hp = 1
-        self.attackSound = load_wav("bgm/golemsoldier_attack.wav")
-        self.attackSound.set_volume(16)
+
         self.attacked = False
         self.played = False
         self.dead = False
@@ -170,6 +169,8 @@ class golemsoldier:
             golemsoldier.walk = load_image("monster/GolemSoldier/GolemSoldier_Floating.png")
             golemsoldier.attack = load_image("monster/GolemSoldier/GolemSoldier_Attack.png")
             golemsoldier.die = load_image("monster/GolemSoldier/soldier_die.png")
+            golemsoldier.attackSound = load_wav("bgm/golemsoldier_attack.wav")
+            golemsoldier.attackSound.set_volume(16)
         pass
 
     def get_bb(self):
