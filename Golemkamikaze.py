@@ -164,7 +164,7 @@ class golemkamikaze:
     walk = None
     attack = None
     die = None
-
+    explosion = None
     def __init__(self):
         self.x = random.randint(200, get_canvas_width() - 200)
         self.y = random.randint(200, get_canvas_height() - 100)
@@ -175,15 +175,14 @@ class golemkamikaze:
         golemkamikaze.attacked = False
         self.cur_state = SleepState
         self.i = 0.2
-        self.explosion = load_wav("bgm/explosion.wav")
-        self.explosion.set_volume(16)
-
         if golemkamikaze.die == None:
             golemkamikaze.slept = load_image("monster/golemkamikaze/golemkamikaze_idleslept.png")
             golemkamikaze.wake = load_image("monster/golemkamikaze/golemkamikaze_wake.png")
             golemkamikaze.walk = load_image("monster/golemkamikaze/golemkamikaze_walk.png")
             golemkamikaze.attack = load_image("monster/golemkamikaze/golemkamikaze_attack.png")
             golemkamikaze.die = load_image("monster/golemkamikaze/kamikaze_die.png")
+            golemkamikaze.explosion = load_wav("bgm/explosion.wav")
+            golemkamikaze.explosion.set_volume(16)
 
     def get_bb(self):
         return self.x - 25, self.y - 25, self.x + 25, self.y + 25
